@@ -13,3 +13,4 @@
 .phpunit.cache
 .DS_Store
 Thumbs.db
+/storage/logs/*.log
