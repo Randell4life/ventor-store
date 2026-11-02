@@ -1,0 +1,5 @@
+@extends('layouts.store')
+@section('title','კატალოგი — VENTOR')
+@section('content')
+<section class="section"><div class="wrap"><div class="eyebrow">VENTOR COLLECTION</div><h2>პროდუქციის კატალოგი</h2><form class="filters"><input name="q" value="{{ request('q') }}" placeholder="მოძებნე პროდუქტი ან ბრენდი"><select name="category"><option value="">ყველა კატეგორია</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category')===$category->slug)>{{ $category->name }}</option>@endforeach</select><select name="sort"><option value="">უახლესი</option><option value="price_asc" @selected(request('sort')==='price_asc')>ფასი: ზრდადობით</option><option value="price_desc" @selected(request('sort')==='price_desc')>ფასი: კლებადობით</option></select><button class="btn">ფილტრაცია</button></form><div class="grid">@forelse($products as $product)@include('store.partials.product-card',['product'=>$product])@empty<p class="muted">ამ კრიტერიუმებით პროდუქტი ვერ მოიძებნა.</p>@endforelse</div><div class="pagination">{{ $products->links() }}</div></div></section>
+@endsection
