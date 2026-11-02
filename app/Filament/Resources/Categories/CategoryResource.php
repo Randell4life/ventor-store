@@ -23,7 +23,7 @@ class CategoryResource extends Resource
     protected static ?string $navigationLabel = 'კატეგორიები';
     protected static ?string $modelLabel = 'კატეგორია';
     protected static ?string $pluralModelLabel = 'კატეგორიები';
-    protected static ?string $navigationGroup = 'კატალოგი';
+    protected static string|\UnitEnum|null $navigationGroup = 'კატალოგი';
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
