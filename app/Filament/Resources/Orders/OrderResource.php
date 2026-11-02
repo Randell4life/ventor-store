@@ -22,7 +22,7 @@ class OrderResource extends Resource
     protected static ?string $navigationLabel = 'შეკვეთები';
     protected static ?string $modelLabel = 'შეკვეთა';
     protected static ?string $pluralModelLabel = 'შეკვეთები';
-    protected static ?string $navigationGroup = 'გაყიდვები';
+    protected static string|\UnitEnum|null $navigationGroup = 'გაყიდვები';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
