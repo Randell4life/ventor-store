@@ -1,4 +1,5 @@
 @extends('layouts.store')
+@push('head')<link rel="stylesheet" href="{{ asset('css/storefront-premium.css') }}">@endpush
 @section('title',$product->name.' — VENTOR')
 @section('content')
 <section class="section">
