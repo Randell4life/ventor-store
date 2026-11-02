@@ -1,19 +1,33 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\\Http\\Controllers;
 
-use App\Models\Order;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use App\\Models\\Order;
+use App\\Models\\Product;
+use Illuminate\\Http\\Request;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Str;
+use Illuminate\\Validation\\ValidationException;
 
 class CheckoutController extends Controller
 {
-    public function create()
+    private function cartLines(Request $request)
     {
-        return view('store.checkout');
+        $cart = $request->session()->get('cart', []);
+        $products = Product::whereIn('id', array_keys($cart))->where('is_active', true)->get()->keyBy('id');
+        return collect($cart)->map(function ($quantity, $id) use ($products) {
+            $product = $products->get($id);
+            if (!$product) return null;
+            $quantity = (int) $quantity;
+            return ['product' => $product, 'quantity' => $quantity, 'line_total' => (float) $product->price * $quantity];
+        })->filter()->values();
+    }
+
+    public function create(Request $request)
+    {
+        $lines = $this->cartLines($request);
+        if ($lines->isEmpty()) return redirect()->route('cart.index')->withErrors(['cart' => 'შეკვეთის გასაფორმებლად კალათაში პროდუქტი დაამატე.']);
+        return view('store.checkout', ['lines' => $lines, 'total' => $lines->sum('line_total')]);
     }
 
     public function store(Request $request)
@@ -26,31 +40,28 @@ class CheckoutController extends Controller
             'address' => ['required', 'string', 'max:255'],
             'note' => ['nullable', 'string', 'max:1000'],
             'payment_method' => ['required', 'in:cash_on_delivery,bank_transfer'],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
-            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:30'],
         ]);
+        $cart = $request->session()->get('cart', []);
+        if (!$cart) throw ValidationException::withMessages(['cart' => 'კალათა ცარიელია.']);
 
-        $order = DB::transaction(function () use ($data) {
+        $order = DB::transaction(function () use ($data, $cart) {
             $subtotal = 0;
             $lines = [];
-            foreach ($data['items'] as $item) {
-                $product = Product::whereKey($item['product_id'])->where('is_active', true)->lockForUpdate()->first();
-                if (!$product || $product->stock < $item['quantity']) {
-                    throw ValidationException::withMessages(['items' => 'ერთ ან მეტ პროდუქტზე მარაგი საკმარისი არ არის.']);
+            foreach ($cart as $id => $quantity) {
+                $product = Product::whereKey($id)->where('is_active', true)->lockForUpdate()->first();
+                if (!$product || $quantity < 1 || $product->stock < $quantity) {
+                    throw ValidationException::withMessages(['cart' => 'პროდუქტი აღარ არის ხელმისაწვდომი მოთხოვნილი რაოდენობით. განაახლე კალათა.']);
                 }
-                $lineTotal = (float) $product->price * $item['quantity'];
+                $lineTotal = (float) $product->price * (int) $quantity;
                 $subtotal += $lineTotal;
-                $lines[] = [$product, $item['quantity'], $lineTotal];
+                $lines[] = [$product, (int) $quantity, $lineTotal];
             }
-
             $order = Order::create([
-                ...collect($data)->except('items')->all(),
+                ...$data,
                 'order_number' => 'VNT-'.now()->format('ymd').'-'.Str::upper(Str::random(5)),
                 'subtotal' => $subtotal, 'delivery_fee' => 0, 'total' => $subtotal,
                 'status' => 'new',
             ]);
-
             foreach ($lines as [$product, $quantity, $lineTotal]) {
                 $order->items()->create([
                     'product_id' => $product->id, 'product_name' => $product->name,
@@ -62,7 +73,8 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        return redirect()->route('checkout.success', $order)->with('order_number', $order->order_number);
+        $request->session()->forget('cart');
+        return redirect()->route('checkout.success', $order);
     }
 
     public function success(Order $order)
