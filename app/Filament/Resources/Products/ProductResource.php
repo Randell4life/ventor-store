@@ -26,7 +26,7 @@ class ProductResource extends Resource
     protected static ?string $navigationLabel = 'პროდუქტები';
     protected static ?string $modelLabel = 'პროდუქტი';
     protected static ?string $pluralModelLabel = 'პროდუქტები';
-    protected static ?string $navigationGroup = 'კატალოგი';
+    protected static string|\UnitEnum|null $navigationGroup = 'კატალოგი';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
