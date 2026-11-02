@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Filament\Resources\Products;
+
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Models\Product;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+
+class ProductResource extends Resource
+{
+    protected static ?string $model = Product::class;
+    protected static ?string $recordTitleAttribute = 'name';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $navigationLabel = 'პროდუქტები';
+    protected static ?string $modelLabel = 'პროდუქტი';
+    protected static ?string $pluralModelLabel = 'პროდუქტები';
+    protected static ?string $navigationGroup = 'კატალოგი';
+    protected static ?int $navigationSort = 1;
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Select::make('category_id')->label('კატეგორია')->relationship('category', 'name')->searchable()->preload()->required(),
+            TextInput::make('name')->label('დასახელება')->required()->maxLength(255),
+            TextInput::make('sku')->label('SKU')->maxLength(100),
+            TextInput::make('brand')->label('ბრენდი')->maxLength(120),
+            TextInput::make('volume')->label('მოცულობა')->maxLength(80),
+            TextInput::make('price')->label('გასაყიდი ფასი (₾)')->numeric()->minValue(0)->required(),
+            TextInput::make('compare_at_price')->label('ძველი ფასი (₾)')->numeric()->minValue(0),
+            TextInput::make('cost_price')->label('თვითღირებულება (₾)')->numeric()->minValue(0),
+            TextInput::make('stock')->label('მარაგი')->numeric()->integer()->minValue(0)->required()->default(0),
+            TextInput::make('image_path')->label('სურათის ფაილის გზა')->maxLength(255),
+            Textarea::make('short_description')->label('მოკლე აღწერა')->rows(2)->columnSpanFull(),
+            Textarea::make('description')->label('სრული აღწერა')->rows(6)->columnSpanFull(),
+            Toggle::make('is_active')->label('აქტიურია')->default(false),
+            Toggle::make('is_featured')->label('რჩეული პროდუქტი')->default(false),
+        ])->columns(2);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table->columns([
+            TextColumn::make('name')->label('პროდუქტი')->searchable()->sortable(),
+            TextColumn::make('category.name')->label('კატეგორია')->sortable(),
+            TextColumn::make('sku')->label('SKU')->searchable(),
+            TextColumn::make('price')->label('ფასი')->money('GEL')->sortable(),
+            TextColumn::make('stock')->label('მარაგი')->numeric()->sortable()->color(fn ($state) => $state < 3 ? 'danger' : 'success'),
+            IconColumn::make('is_active')->label('აქტიური')->boolean(),
+            IconColumn::make('is_featured')->label('რჩეული')->boolean(),
+        ])->filters([
+            SelectFilter::make('category')->label('კატეგორია')->relationship('category', 'name'),
+            TernaryFilter::make('is_active')->label('აქტიურობა'),
+        ])->recordActions([
+            \Filament\Actions\EditAction::make()->label('რედაქტირება'),
+            \Filament\Actions\DeleteAction::make()->label('წაშლა'),
+        ])->defaultSort('created_at', 'desc');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListProducts::route('/'),
+            'create' => CreateProduct::route('/create'),
+            'edit' => EditProduct::route('/{record}/edit'),
+        ];
+    }
+}
