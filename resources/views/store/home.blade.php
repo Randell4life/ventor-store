@@ -1,4 +1,5 @@
 @extends('layouts.store')
+@push('head')<link rel="stylesheet" href="{{ asset('css/storefront-premium.css') }}">@endpush
 @section('title', 'VENTOR — პრემიუმ მოვლა ავტომობილისა და მოტოციკლისთვის')
 @section('content')
 <section class="hero">
