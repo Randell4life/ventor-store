@@ -1,4 +1,5 @@
 @extends('layouts.store')
+@push('head')<link rel="stylesheet" href="{{ asset('css/storefront-premium.css') }}">@endpush
 @section('title','შეკვეთის გაფორმება — VENTOR')
 @section('content')
 <section class="section"><div class="wrap"><div class="eyebrow">SECURE CHECKOUT</div><h1>შეკვეთის გაფორმება</h1>
