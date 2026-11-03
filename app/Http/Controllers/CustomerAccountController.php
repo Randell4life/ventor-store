@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\Order;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\Auth;
-use Illuminate\\Support\\Facades\\Hash;
-use Illuminate\\Validation\\Rule;
-use Illuminate\\View\\View;
+use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class CustomerAccountController extends Controller
 {
@@ -26,7 +26,7 @@ class CustomerAccountController extends Controller
             'password' => ['required', 'string', 'min:10', 'confirmed'],
         ]);
 
-        $user = \\App\\Models\\User::create([
+        $user = \App\Models\User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
