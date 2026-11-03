@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Filament\\Widgets;
+namespace App\Filament\Widgets;
 
-use App\\Models\\Order;
-use App\\Models\\Product;
-use Filament\\Widgets\\StatsOverviewWidget as BaseWidget;
-use Filament\\Widgets\\StatsOverviewWidget\\Stat;
+use App\Models\Order;
+use App\Models\Product;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StoreStats extends BaseWidget
 {
