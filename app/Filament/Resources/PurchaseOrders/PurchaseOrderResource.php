@@ -51,7 +51,7 @@ class PurchaseOrderResource extends Resource
                 ->relationship('supplier', 'name', modifyQueryUsing: fn ($query) => $query->where('is_active', true))
                 ->searchable()->preload()->required()->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
             TextInput::make('order_number')->label('შესყიდვის ნომერი')->disabled()->dehydrated(false),
-            Select::make('status')->label('სტატუსი')->options(self::statuses())->required()->native(false)
+            Select::make('status')->label('სტატუსი')->options(self::statuses())->default('draft')->required()->native(false)
                 ->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
             Repeater::make('items')
                 ->label('პროდუქტები')
