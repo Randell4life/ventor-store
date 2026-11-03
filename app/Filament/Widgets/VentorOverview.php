@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Filament\\Widgets;
+namespace App\Filament\Widgets;
 
-use App\\Models\\Order;
-use App\\Models\\Product;
-use Filament\\Widgets\\StatsOverviewWidget;
-use Filament\\Widgets\\StatsOverviewWidget\\Stat;
+use App\Models\Order;
+use App\Models\Product;
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class VentorOverview extends StatsOverviewWidget
 {
@@ -31,7 +31,7 @@ class VentorOverview extends StatsOverviewWidget
                 ->description('დღევანდელი შეკვეთების ჯამი')
                 ->color('success'),
             Stat::make('ამ თვის შეკვეთები', (clone $monthOrders)->count())
-                ->description(now()->translatedFormat('F Y'))
+                ->description(now()->copy()->format('m/Y'))
                 ->color('primary'),
             Stat::make('ამ თვის გაყიდვები', $this->money((float) (clone $monthOrders)->sum('total')))
                 ->description('მიმდინარე თვის შეკვეთების ჯამი')
