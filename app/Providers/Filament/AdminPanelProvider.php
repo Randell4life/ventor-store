@@ -2,8 +2,10 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
+use App\Filament\Widgets\LowStockProducts;
+use App\Filament\Widgets\RecentOrders;
 use App\Filament\Widgets\StoreStats;
+use Filament\Http\Middleware\Authenticate;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -27,10 +29,20 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('VENTOR')
             ->colors(['primary' => Color::Blue])
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('full')
+            ->navigationGroups([
+                'გაყიდვები',
+                'კატალოგი',
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([Dashboard::class])
-            ->widgets([StoreStats::class])
+            ->widgets([
+                StoreStats::class,
+                RecentOrders::class,
+                LowStockProducts::class,
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

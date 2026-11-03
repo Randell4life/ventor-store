@@ -13,11 +13,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductResource extends Resource
 {
@@ -59,16 +62,28 @@ class ProductResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('name')->label('პროდუქტი')->searchable()->sortable(),
+            ImageColumn::make('image_path')->label('ფოტო')->disk('public')->square(),
+            TextColumn::make('name')->label('პროდუქტი')->searchable()->sortable()->weight('bold'),
             TextColumn::make('category.name')->label('კატეგორია')->sortable(),
             TextColumn::make('sku')->label('SKU')->searchable(),
+            TextColumn::make('brand')->label('ბრენდი')->searchable(),
             TextColumn::make('price')->label('ფასი')->money('GEL')->sortable(),
-            TextColumn::make('stock')->label('მარაგი')->numeric()->sortable()->color(fn ($state) => $state < 3 ? 'danger' : 'success'),
+            TextColumn::make('stock')->label('მარაგი')->numeric()->sortable()
+                ->badge()
+                ->color(fn (int $state): string => match (true) {
+                    $state <= 1 => 'danger',
+                    $state <= 5 => 'warning',
+                    default => 'success',
+                }),
             IconColumn::make('is_active')->label('აქტიური')->boolean(),
             IconColumn::make('is_featured')->label('რჩეული')->boolean(),
         ])->filters([
             SelectFilter::make('category')->label('კატეგორია')->relationship('category', 'name'),
             TernaryFilter::make('is_active')->label('აქტიურობა'),
+            TernaryFilter::make('is_featured')->label('რჩეული პროდუქტი'),
+            Filter::make('low_stock')
+                ->label('დაბალი მარაგი')
+                ->query(fn (Builder $query): Builder => $query->where('stock', '<=', 5)),
         ])->recordActions([
             \Filament\Actions\EditAction::make()->label('რედაქტირება'),
             \Filament\Actions\DeleteAction::make()->label('წაშლა'),
