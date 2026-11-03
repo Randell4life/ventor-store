@@ -3,7 +3,19 @@
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'VENTOR — Premium Automotive Care')</title>
-    <meta name="description" content="VENTOR — პრემიუმ საავტომობილო და მოტო მოვლის პროდუქტები.">
+    <meta name="description" content="@yield('meta_description', 'VENTOR — პრემიუმ საავტომობილო და მოტო მოვლის პროდუქტები. შეარჩიე ხარისხიანი მოვლის საშუალებები ავტომობილისა და მოტოციკლისთვის.')">
+    <meta name="robots" content="@yield('meta_robots', 'index,follow')">
+    <meta name="theme-color" content="#080b11">
+    <link rel="canonical" href="@yield('canonical_url', url()->current())">
+    <meta property="og:locale" content="ka_GE">
+    <meta property="og:site_name" content="VENTOR">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:title" content="@yield('og_title', trim($__env->yieldContent('title', 'VENTOR — Premium Automotive Care')))">
+    <meta property="og:description" content="@yield('meta_description', 'VENTOR — პრემიუმ საავტომობილო და მოტო მოვლის პროდუქტები.')">
+    <meta property="og:url" content="@yield('canonical_url', url()->current())">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('og_title', trim($__env->yieldContent('title', 'VENTOR — Premium Automotive Care')))">
+    <meta name="twitter:description" content="@yield('meta_description', 'VENTOR — პრემიუმ საავტომობილო და მოტო მოვლის პროდუქტები.')">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
