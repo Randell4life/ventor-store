@@ -1,12 +1,12 @@
 <?php
 
-namespace App\\Filament\\Widgets;
+namespace App\Filament\Widgets;
 
-use App\\Filament\\Resources\\Products\\ProductResource;
-use App\\Models\\Product;
-use Filament\\Tables\\Columns\\TextColumn;
-use Filament\\Tables\\Table;
-use Filament\\Widgets\\TableWidget;
+use App\Filament\Resources\Products\ProductResource;
+use App\Models\Product;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Filament\Widgets\TableWidget;
 
 class LowStockProducts extends TableWidget
 {
