@@ -1,28 +1,28 @@
 <?php
 
-namespace App\\Filament\\Resources\\Orders;
+namespace App\Filament\Resources\Orders;
 
-use App\\Filament\\Resources\\Orders\\Pages\\EditOrder;
-use App\\Filament\\Resources\\Orders\\Pages\\ListOrders;
-use App\\Models\\Order;
-use Filament\\Forms\\Components\\Select;
-use Filament\\Forms\\Components\\Textarea;
-use Filament\\Forms\\Components\\TextInput;
-use Filament\\Resources\\Resource;
-use Filament\\Schemas\\Schema;
-use Filament\\Tables\\Columns\\TextColumn;
-use Filament\\Tables\\Filters\\SelectFilter;
-use Filament\\Tables\\Table;
+use App\Filament\Resources\Orders\Pages\EditOrder;
+use App\Filament\Resources\Orders\Pages\ListOrders;
+use App\Models\Order;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
     protected static ?string $recordTitleAttribute = 'order_number';
-    protected static string|\\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationLabel = 'შეკვეთები';
     protected static ?string $modelLabel = 'შეკვეთა';
     protected static ?string $pluralModelLabel = 'შეკვეთები';
-    protected static string|\\UnitEnum|null $navigationGroup = 'გაყიდვები';
+    protected static string|\UnitEnum|null $navigationGroup = 'გაყიდვები';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -90,7 +90,7 @@ class OrderResource extends Resource
                 'cancelled' => 'გაუქმებული',
             ]),
         ])->recordActions([
-            \\Filament\\Actions\\EditAction::make()->label('ნახვა / სტატუსის შეცვლა'),
+            \Filament\Actions\EditAction::make()->label('ნახვა / სტატუსის შეცვლა'),
         ])->defaultSort('created_at', 'desc');
     }
 
