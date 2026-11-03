@@ -1,33 +1,33 @@
 <?php
 
-namespace App\\Filament\\Resources\\Products;
+namespace App\Filament\Resources\Products;
 
-use App\\Filament\\Resources\\Products\\Pages\\CreateProduct;
-use App\\Filament\\Resources\\Products\\Pages\\EditProduct;
-use App\\Filament\\Resources\\Products\\Pages\\ListProducts;
-use App\\Models\\Product;
-use Filament\\Forms\\Components\\FileUpload;
-use Filament\\Forms\\Components\\Select;
-use Filament\\Forms\\Components\\Textarea;
-use Filament\\Forms\\Components\\TextInput;
-use Filament\\Forms\\Components\\Toggle;
-use Filament\\Resources\\Resource;
-use Filament\\Schemas\\Schema;
-use Filament\\Tables\\Columns\\IconColumn;
-use Filament\\Tables\\Columns\\TextColumn;
-use Filament\\Tables\\Filters\\SelectFilter;
-use Filament\\Tables\\Filters\\TernaryFilter;
-use Filament\\Tables\\Table;
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Models\Product;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
     protected static ?string $recordTitleAttribute = 'name';
-    protected static string|\\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
     protected static ?string $navigationLabel = 'პროდუქტები';
     protected static ?string $modelLabel = 'პროდუქტი';
     protected static ?string $pluralModelLabel = 'პროდუქტები';
-    protected static string|\\UnitEnum|null $navigationGroup = 'კატალოგი';
+    protected static string|\UnitEnum|null $navigationGroup = 'კატალოგი';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -70,8 +70,8 @@ class ProductResource extends Resource
             SelectFilter::make('category')->label('კატეგორია')->relationship('category', 'name'),
             TernaryFilter::make('is_active')->label('აქტიურობა'),
         ])->recordActions([
-            \\Filament\\Actions\\EditAction::make()->label('რედაქტირება'),
-            \\Filament\\Actions\\DeleteAction::make()->label('წაშლა'),
+            \Filament\Actions\EditAction::make()->label('რედაქტირება'),
+            \Filament\Actions\DeleteAction::make()->label('წაშლა'),
         ])->defaultSort('created_at', 'desc');
     }
 
