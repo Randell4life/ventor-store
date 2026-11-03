@@ -131,9 +131,9 @@ class PurchaseOrderResource extends Resource
                             $after = $before + $receivedQuantity;
                             $oldCost = (float) ($product->cost_price ?? 0);
                             $newCost = (float) $item->unit_cost;
-                            $weightedCost = $after > 0
-                                ? (($before * $oldCost) + ($receivedQuantity * $newCost)) / $after
-                                : $newCost;
+                            $weightedCost = $product->cost_price === null || $before === 0
+                                ? $newCost
+                                : (($before * $oldCost) + ($receivedQuantity * $newCost)) / $after;
 
                             $product->update([
                                 'stock' => $after,
