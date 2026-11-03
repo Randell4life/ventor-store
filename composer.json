@@ -3,7 +3,11 @@
     "name": "ventor/store",
     "type": "project",
     "description": "VENTOR Premium Automotive Care online store",
-    "keywords": ["laravel", "ventor", "ecommerce"],
+    "keywords": [
+        "laravel",
+        "ventor",
+        "ecommerce"
+    ],
     "license": "proprietary",
     "require": {
         "php": "^8.3",
@@ -44,7 +48,19 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \\\"#93c5fd,#c4b5fd,#fdba74\\\" \\\"php artisan serve\\\" \\\"php artisan queue:listen --tries=1\\\" \\\"npm run dev\\\" --names=server,queue,vite"
         ],
-        "test": ["@php artisan config:clear", "@php artisan test"]
+        "test": [
+            "@php artisan config:clear",
+            "@php artisan test"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:assets"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan filament:assets"
+        ]
     },
     "extra": {
         "laravel": {
