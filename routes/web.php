@@ -1,10 +1,10 @@
 <?php
 
-use App\\Http\\Controllers\\CartController;
-use App\\Http\\Controllers\\CheckoutController;
-use App\\Http\\Controllers\\CustomerAccountController;
-use App\\Http\\Controllers\\StoreController;
-use Illuminate\\Support\\Facades\\Route;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\StoreController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/catalog', [StoreController::class, 'catalog'])->name('catalog');
