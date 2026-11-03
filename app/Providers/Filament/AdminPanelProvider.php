@@ -1,20 +1,22 @@
 <?php
 
-namespace App\Providers\Filament;
+namespace App\\Providers\\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use App\Filament\Widgets\StoreStats;
-use Filament\Pages\Dashboard;
-use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\\Filament\\Widgets\\LowStockProducts;
+use App\\Filament\\Widgets\\RecentOrders;
+use App\\Filament\\Widgets\\StoreStats;
+use Filament\\Http\\Middleware\\Authenticate;
+use Filament\\Pages\\Dashboard;
+use Filament\\Panel;
+use Filament\\PanelProvider;
+use Filament\\Support\\Colors\\Color;
+use Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse;
+use Illuminate\\Cookie\\Middleware\\EncryptCookies;
+use Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken;
+use Illuminate\\Routing\\Middleware\\SubstituteBindings;
+use Illuminate\\Session\\Middleware\\AuthenticateSession;
+use Illuminate\\Session\\Middleware\\StartSession;
+use Illuminate\\View\\Middleware\\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -27,10 +29,20 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('VENTOR')
             ->colors(['primary' => Color::Blue])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('full')
+            ->navigationGroups([
+                'გაყიდვები',
+                'კატალოგი',
+            ])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\\\Filament\\\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\\\Filament\\\\Pages')
             ->pages([Dashboard::class])
-            ->widgets([StoreStats::class])
+            ->widgets([
+                StoreStats::class,
+                RecentOrders::class,
+                LowStockProducts::class,
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
