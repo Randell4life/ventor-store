@@ -23,7 +23,34 @@
 @media(max-width:560px){.product-gallery .visual{height:280px}.product-buy .btn{flex:1}.product-facts{gap:7px}.product-fact{padding:10px}}
 </style>
 @endpush
-@section('title',$product->name.' — VENTOR')
+@section('title', $product->name.' — VENTOR')
+@section('meta_description', \Illuminate\Support\Str::limit(trim(strip_tags($product->short_description ?: ($product->description ?: $product->name.' — პროდუქტი VENTOR-ის კატალოგში.'))), 155, ''))
+@section('canonical_url', route('product.show', $product))
+@section('og_type', 'product')
+@section('og_title', $product->name.' — VENTOR')
+@push('head')
+    @if($product->image_path)
+        <meta property="og:image" content="{{ asset('storage/'.$product->image_path) }}">
+    @endif
+    <script type="application/ld+json">
+        @json([
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name,
+            'description' => $product->short_description ?: strip_tags($product->description ?? ''),
+            'sku' => $product->sku,
+            'brand' => $product->brand ? ['@type' => 'Brand', 'name' => $product->brand] : null,
+            'image' => $product->image_path ? [asset('storage/'.$product->image_path)] : null,
+            'offers' => [
+                '@type' => 'Offer',
+                'priceCurrency' => 'GEL',
+                'price' => (float) $product->price,
+                'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'url' => route('product.show', $product),
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+    </script>
+@endpush
 @section('content')
 <section class="section">
     <div class="wrap">
