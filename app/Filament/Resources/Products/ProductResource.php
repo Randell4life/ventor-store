@@ -6,6 +6,7 @@ use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Models\Product;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -41,7 +42,13 @@ class ProductResource extends Resource
             TextInput::make('compare_at_price')->label('ძველი ფასი (₾)')->numeric()->minValue(0),
             TextInput::make('cost_price')->label('თვითღირებულება (₾)')->numeric()->minValue(0),
             TextInput::make('stock')->label('მარაგი')->numeric()->integer()->minValue(0)->required()->default(0),
-            TextInput::make('image_path')->label('სურათის ფაილის გზა')->maxLength(255),
+            FileUpload::make('image_path')
+                ->label('პროდუქტის ფოტო')
+                ->image()
+                ->disk('public')
+                ->directory('products')
+                ->visibility('public')
+                ->maxSize(5120),
             Textarea::make('short_description')->label('მოკლე აღწერა')->rows(2)->columnSpanFull(),
             Textarea::make('description')->label('სრული აღწერა')->rows(6)->columnSpanFull(),
             Toggle::make('is_active')->label('აქტიურია')->default(false),

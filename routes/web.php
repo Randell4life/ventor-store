@@ -16,4 +16,5 @@ Route::delete('/cart/{product}', [CartController::class, 'remove'])->name('cart.
 
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/order/{order}/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/order/{token}/success', [CheckoutController::class, 'success'])
+    ->name('checkout.success');
