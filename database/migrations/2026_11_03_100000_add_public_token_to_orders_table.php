@@ -10,9 +10,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('public_token', 64)->nullable()->unique();
-        });
+        if (! Schema::hasColumn('orders', 'public_token')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('public_token', 64)->nullable();
+            });
+        }
+
+        if (! Schema::hasIndex('orders', 'orders_public_token_unique')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->unique('public_token', 'orders_public_token_unique');
+            });
+        }
 
         DB::table('orders')
             ->whereNull('public_token')
@@ -30,9 +38,16 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropUnique(['public_token']);
-            $table->dropColumn('public_token');
-        });
+        if (Schema::hasIndex('orders', 'orders_public_token_unique')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->dropUnique('orders_public_token_unique');
+            });
+        }
+
+        if (Schema::hasColumn('orders', 'public_token')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->dropColumn('public_token');
+            });
+        }
     }
 };
