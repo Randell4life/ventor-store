@@ -1,5 +1,5 @@
 <article class="card product-card">
-    <a href="{{ route('product.show', $product) }}" aria-label="{{ $product->name }} — დეტალების ნახვა">
+    <a href="{{ route('product.show', ['product' => $product->slug]) }}" aria-label="{{ $product->name }} — დეტალების ნახვა">
         <div class="visual">
             @if($product->image_path)
                 <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" loading="lazy" style="width:100%;height:100%;object-fit:contain">
@@ -20,7 +20,7 @@
         </div>
     </a>
     <div style="display:flex;gap:8px;align-items:center">
-        <a class="btn secondary" style="flex:1" href="{{ route('product.show', $product) }}">დეტალები</a>
+        <a class="btn secondary" style="flex:1" href="{{ route('product.show', ['product' => $product->slug]) }}">დეტალები</a>
         @if($product->stock > 0)
             <form method="POST" action="{{ route('cart.add') }}" style="margin:0">
                 @csrf
