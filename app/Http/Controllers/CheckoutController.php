@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\\Http\\Controllers;
 
-use App\Models\Order;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use App\\Models\\Order;
+use App\\Models\\Product;
+use Illuminate\\Http\\Request;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Str;
+use Illuminate\\Validation\\ValidationException;
 
 class CheckoutController extends Controller
 {
@@ -92,6 +92,7 @@ class CheckoutController extends Controller
             $order = Order::create([
                 ...$data,
                 'order_number' => 'VNT-'.now()->format('ymd').'-'.Str::upper(Str::random(5)),
+                'public_token' => Str::random(64),
                 'subtotal' => $subtotal,
                 'delivery_fee' => 0,
                 'total' => $subtotal,
@@ -116,11 +117,17 @@ class CheckoutController extends Controller
 
         $request->session()->forget('cart');
 
-        return redirect()->route('checkout.success', $order);
+        return redirect()->route('checkout.success', [
+            'token' => $order->public_token,
+        ]);
     }
 
-    public function success(Order $order)
+    public function success(string $token)
     {
+        $order = Order::where('public_token', $token)
+            ->with('items')
+            ->firstOrFail();
+
         return view('store.success', compact('order'));
     }
 }
