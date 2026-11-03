@@ -51,7 +51,7 @@
                         <div class="cart-list">
                             @foreach($lines as $line)
                                 <article class="cart-line">
-                                    <a class="cart-thumb" href="{{ route('product.show',$line['product']) }}">
+                                    <a class="cart-thumb" href="{{ route('product.show',['product'=>$line['product']->slug]) }}">
                                         @if($line['product']->image_path)
                                             <img src="{{ asset('storage/'.$line['product']->image_path) }}" alt="{{ $line['product']->name }}" loading="lazy">
                                         @else
