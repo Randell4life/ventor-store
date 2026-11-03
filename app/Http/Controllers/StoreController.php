@@ -20,28 +20,55 @@ class StoreController extends Controller
     public function catalog(Request $request)
     {
         $query = Product::with('category')->where('is_active', true);
+
         if ($request->filled('q')) {
-            $term = $request->string('q')->toString();
+            $term = trim($request->string('q')->toString());
             $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")
                 ->orWhere('brand', 'like', "%{$term}%")
-                ->orWhere('sku', 'like', "%{$term}%"));
+                ->orWhere('sku', 'like', "%{$term}%")
+                ->orWhere('short_description', 'like', "%{$term}%"));
         }
+
         if ($request->filled('category')) {
-            $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
+            $query->whereHas('category', fn ($q) => $q->where('slug', $request->string('category')->toString()));
         }
-        if ($request->get('sort') === 'price_asc') $query->orderBy('price');
-        elseif ($request->get('sort') === 'price_desc') $query->orderByDesc('price');
-        else $query->latest();
+
+        if ($request->filled('brand')) {
+            $query->where('brand', $request->string('brand')->toString());
+        }
+
+        if ($request->boolean('in_stock')) {
+            $query->where('stock', '>', 0);
+        }
+
+        match ($request->get('sort')) {
+            'price_asc' => $query->orderBy('price')->orderBy('name'),
+            'price_desc' => $query->orderByDesc('price')->orderBy('name'),
+            'name_asc' => $query->orderBy('name'),
+            default => $query->latest(),
+        };
 
         return view('store.catalog', [
             'products' => $query->paginate(12)->withQueryString(),
             'categories' => Category::where('is_active', true)->orderBy('sort_order')->get(),
+            'brands' => Product::where('is_active', true)->whereNotNull('brand')
+                ->where('brand', '!=', '')->distinct()->orderBy('brand')->pluck('brand'),
         ]);
     }
 
     public function show(Product $product)
     {
         abort_unless($product->is_active, 404);
-        return view('store.product', compact('product'));
+
+        $product->load('category');
+        $relatedProducts = Product::with('category')
+            ->where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->when($product->category_id, fn ($query) => $query->where('category_id', $product->category_id))
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('store.product', compact('product', 'relatedProducts'));
     }
 }
