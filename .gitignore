@@ -13,3 +13,150 @@
 .phpunit.cache
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+**/node_modules/
+**/vendor/
+
+# Generated builds
+**/build/
+**/.gradle/
+**/android/app/src/main/assets/public/
+
+# Laravel runtime
+storage/framework/
+storage/logs/
+storage/app/private/
+bootstrap/cache/*.php
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
+# Backups and temporary files
+*.bak
+*.backup
+*.backup.*
+*.before-*
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+**/node_modules/
+**/vendor/
+
+# Generated builds
+**/build/
+**/.gradle/
+**/android/app/src/main/assets/public/
+
+# Laravel runtime
+storage/framework/
+storage/logs/
+storage/app/private/
+bootstrap/cache/*.php
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
+# Backups and temporary files
+*.bak
+*.backup
+*.backup.*
+*.before-*
+
+# Local and generated mobile files
+motohub-mobile/android/.idea/
+motohub-mobile/android/local.properties
+motohub-mobile/dist/
+
+# Database exports and local uploads
+database/sqlite-export.sql
+storage/app/public/
+storage/app/*backup*/
+storage/app/*reset*/
+
+# Backups
+**/*.bak
+**/*.backup
+**/*.backup.*
+**/*.before-*
+**/backup-design/
+
+# Temporary diagnostic files
+/check-hosting.php
+/count-sqlite.php
+
+
+# Temporary and diagnostic files
+/.resources/
+/d
+/*-current.txt
+/routes-audit.txt
+/routes-current.txt
+/service-center-show-current.txt
+/service-centers-migration-current.txt
+/service-centers-routes.txt
+/snippets/
+
+# Old snapshots and backups
+/resources/views/home.blade.backup-*
+/resources/views/home.blade.php.backup-*
+/resources/views/layouts/*.backup-*
+/resources/views/my-service-center/*.backup*
+/resources/views/transport/partner/backup-design/
+/resources/workshops/catalog_fresh.blade.php
+/resources/workshops/catalog_rebuilt.blade.php
+
+# Separate old starter project
+/motohub-service-centers-starter/
+
+# Temporary root-level copies
+/home-current.txt
+/home.blade.php
+/home.blade.updated.php
+/AdminPanelProvider-current.txt
+/MotorcycleAccountController-current.txt
+/MyServiceCenterController-current.txt
+/ServiceBooking-model.txt
+/ServiceBookingController-current.txt
+/ServiceCenter-model-current.txt
+/ServiceCenterController-current.txt
+/account-index-current.txt
+/service-center-show-current.txt
+/service-centers-migration-current.txt
+/service-centers-routes.txt
+/routes-audit.txt
+/routes-current.txt
+
+# Temporary snapshots and backups
+**/*.backup*
+**/*.bak
+**/*-current.txt
+**/*-audit.txt
+**/*-routes.txt
+home-current.txt
+account-index-current.txt
+service-center-show-current.txt
+service-centers-migration-current.txt
+
+# Temporary folders and files
+.resources/
+snippets/
+d
+
+# Alternative workshop view drafts
+resources/workshops/catalog_fresh.blade.php
+resources/workshops/catalog_rebuilt.blade.php
+

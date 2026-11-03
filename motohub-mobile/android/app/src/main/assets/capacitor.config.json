@@ -1,0 +1,8 @@
+{
+	"appId": "com.garage33.app",
+	"appName": "Garage33",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "http"
+	}
+}
