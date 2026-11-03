@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Filament\Resources\Orders;
+namespace App\\Filament\\Resources\\Orders;
 
-use App\Filament\Resources\Orders\Pages\EditOrder;
-use App\Filament\Resources\Orders\Pages\ListOrders;
-use App\Models\Order;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
+use App\\Filament\\Resources\\Orders\\Pages\\EditOrder;
+use App\\Filament\\Resources\\Orders\\Pages\\ListOrders;
+use App\\Models\\Order;
+use Filament\\Forms\\Components\\Select;
+use Filament\\Forms\\Components\\Textarea;
+use Filament\\Forms\\Components\\TextInput;
+use Filament\\Resources\\Resource;
+use Filament\\Schemas\\Schema;
+use Filament\\Tables\\Columns\\TextColumn;
+use Filament\\Tables\\Filters\\SelectFilter;
+use Filament\\Tables\\Table;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
     protected static ?string $recordTitleAttribute = 'order_number';
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string|\\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationLabel = 'შეკვეთები';
     protected static ?string $modelLabel = 'შეკვეთა';
     protected static ?string $pluralModelLabel = 'შეკვეთები';
-    protected static string|\UnitEnum|null $navigationGroup = 'გაყიდვები';
+    protected static string|\\UnitEnum|null $navigationGroup = 'გაყიდვები';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -54,12 +54,31 @@ class OrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('order_number')->label('შეკვეთა')->searchable()->sortable(),
+            TextColumn::make('order_number')->label('შეკვეთა')->searchable()->sortable()->weight('bold'),
             TextColumn::make('customer_name')->label('მომხმარებელი')->searchable(),
             TextColumn::make('phone')->label('ტელეფონი')->searchable(),
+            TextColumn::make('email')->label('ელფოსტა')->searchable()->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('city')->label('ქალაქი')->searchable(),
+            TextColumn::make('items_count')->counts('items')->label('პოზიციები'),
             TextColumn::make('total')->label('ჯამი')->money('GEL')->sortable(),
-            TextColumn::make('status')->label('სტატუსი')->badge()->sortable(),
+            TextColumn::make('status')->label('სტატუსი')->badge()->sortable()
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'new' => 'ახალი',
+                    'confirmed' => 'დადასტურებული',
+                    'processing' => 'მუშავდება',
+                    'shipped' => 'გაგზავნილია',
+                    'completed' => 'დასრულებული',
+                    'cancelled' => 'გაუქმებული',
+                    default => $state,
+                })
+                ->color(fn (string $state): string => match ($state) {
+                    'new' => 'warning',
+                    'confirmed' => 'info',
+                    'processing' => 'primary',
+                    'shipped', 'completed' => 'success',
+                    'cancelled' => 'danger',
+                    default => 'gray',
+                }),
             TextColumn::make('created_at')->label('თარიღი')->dateTime('d.m.Y H:i')->sortable(),
         ])->filters([
             SelectFilter::make('status')->label('სტატუსი')->options([
@@ -71,7 +90,7 @@ class OrderResource extends Resource
                 'cancelled' => 'გაუქმებული',
             ]),
         ])->recordActions([
-            \Filament\Actions\EditAction::make()->label('ნახვა / სტატუსის შეცვლა'),
+            \\Filament\\Actions\\EditAction::make()->label('ნახვა / სტატუსის შეცვლა'),
         ])->defaultSort('created_at', 'desc');
     }
 
