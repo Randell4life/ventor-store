@@ -1,6 +1,15 @@
 @extends('layouts.store')
-@push('head')<link rel="stylesheet" href="{{ asset('css/storefront-premium.css') }}">@endpush
 @section('title','შეკვეთა მიღებულია — VENTOR')
 @section('content')
-<section class="section"><div class="wrap" style="max-width:700px"><div class="eyebrow">ORDER RECEIVED</div><h1>გმადლობთ შეკვეთისთვის.</h1><p class="muted">თქვენი შეკვეთის ნომერია:</p><h2 style="color:var(--ice)">{{ $order->order_number }}</h2><p>შეკვეთის სტატუსი: {{ $order->status }}</p><a class="btn" href="{{ route('catalog') }}">კატალოგში დაბრუნება</a></div></section>
+<section class="section order-success-section">
+    <div class="wrap order-success-card">
+        <div class="success-symbol"><span>✓</span></div>
+        <div class="eyebrow">VENTOR / ORDER RECEIVED</div>
+        <h1>შეკვეთა <span class="text-blue">მიღებულია.</span></h1>
+        <p class="success-lead">გმადლობთ, რომ აირჩიეთ VENTOR. თქვენი შეკვეთა წარმატებით დარეგისტრირდა.</p>
+        <div class="success-order-number"><span>შეკვეთის ნომერი</span><strong>{{ $order->order_number }}</strong></div>
+        <div class="success-status"><span>მიმდინარე სტატუსი</span><strong>{{ $order->status }}</strong></div>
+        <a class="btn" href="{{ route('catalog') }}">კატალოგში დაბრუნება ↗</a>
+    </div>
+</section>
 @endsection
