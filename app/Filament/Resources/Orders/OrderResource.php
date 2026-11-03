@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Orders;
 use App\Filament\Resources\Orders\Pages\EditOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Models\Order;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -34,7 +35,22 @@ class OrderResource extends Resource
             TextInput::make('email')->label('ელფოსტა')->disabled(),
             TextInput::make('city')->label('ქალაქი')->disabled(),
             TextInput::make('address')->label('მისამართი')->disabled(),
-            TextInput::make('total')->label('ჯამი (₾)')->disabled(),
+            TextInput::make('subtotal')->label('პროდუქტების ჯამი (₾)')->disabled(),
+            TextInput::make('delivery_fee')->label('მიწოდება (₾)')->disabled(),
+            TextInput::make('total')->label('სულ გადასახდელი (₾)')->disabled(),
+            Repeater::make('items')
+                ->label('შეკვეთის პროდუქტები')
+                ->relationship()
+                ->schema([
+                    TextInput::make('product_name')->label('პროდუქტი')->disabled(),
+                    TextInput::make('sku')->label('SKU')->disabled(),
+                    TextInput::make('quantity')->label('რაოდენობა')->numeric()->disabled(),
+                    TextInput::make('unit_price')->label('ერთეულის ფასი (₾)')->numeric()->disabled(),
+                    TextInput::make('line_total')->label('პოზიციის ჯამი (₾)')->numeric()->disabled(),
+                ])
+                ->columns(5)
+                ->disabled()
+                ->columnSpanFull(),
             Select::make('status')->label('სტატუსი')->options([
                 'new' => 'ახალი',
                 'confirmed' => 'დადასტურებული',
