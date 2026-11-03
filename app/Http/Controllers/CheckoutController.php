@@ -91,6 +91,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 ...$data,
+                'user_id' => auth()->id(),
                 'order_number' => 'VNT-'.now()->format('ymd').'-'.Str::upper(Str::random(5)),
                 'public_token' => Str::random(64),
                 'subtotal' => $subtotal,
