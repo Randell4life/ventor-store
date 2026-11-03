@@ -109,7 +109,18 @@ class CheckoutController extends Controller
                     'line_total' => $lineTotal,
                 ]);
 
+                $stockBefore = (int) $product->stock;
                 $product->decrement('stock', $quantity);
+
+                $product->inventoryMovements()->create([
+                    'user_id' => auth()->id(),
+                    'movement_type' => 'sale',
+                    'quantity_change' => -$quantity,
+                    'stock_before' => $stockBefore,
+                    'stock_after' => $stockBefore - $quantity,
+                    'reference' => $order->order_number,
+                    'note' => 'ონლაინ შეკვეთა',
+                ]);
             }
 
             return $order;

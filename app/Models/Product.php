@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -28,6 +29,11 @@ class Product extends Model
         static::creating(function (Product $product) {
             $product->slug = $product->slug ?: Str::slug($product->name).'-'.Str::lower(Str::random(5));
         });
+    }
+
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class);
     }
 
     public function category(): BelongsTo
