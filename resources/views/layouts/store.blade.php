@@ -15,7 +15,7 @@
     @stack('head')
 </head>
 <body>
-<header><div class="wrap nav"><a class="logo" href="{{ route('home') }}">VENTOR<span>.</span></a><nav class="navlinks"><a href="{{ route('catalog') }}">კატალოგი</a><a href="{{ route('catalog', ['category'=>'car-care']) }}">ავტომობილი</a><a href="{{ route('catalog', ['category'=>'moto-care']) }}">მოტო</a><a href="#contact">კონტაქტი</a></nav><a class="btn secondary" href="{{ route('cart.index') }}">კალათა ({{ collect(session('cart', []))->sum() }})</a></div></header>
+<header><div class="wrap nav"><a class="logo" href="{{ route('home') }}">VENTOR<span>.</span></a><nav class="navlinks"><a href="{{ route('catalog') }}">კატალოგი</a><a href="{{ route('catalog', ['category'=>'car-care']) }}">ავტომობილი</a><a href="{{ route('catalog', ['category'=>'moto-care']) }}">მოტო</a><a href="#contact">კონტაქტი</a></nav><div style="display:flex;gap:9px;align-items:center">@auth<a class="btn secondary" href="{{ route('account.index') }}">ჩემი ანგარიში</a>@else<a class="btn secondary" href="{{ route('login') }}">შესვლა</a>@endauth<a class="btn secondary" href="{{ route('cart.index') }}">კალათა ({{ collect(session('cart', []))->sum() }})</a></div></div></header>
 <main>@yield('content')</main>
 <footer id="contact"><div class="wrap"><div class="logo">VENTOR<span>.</span></div><p>PREMIUM AUTOMOTIVE CARE · ხარისხი ყველა დეტალში</p><p>საკონტაქტო ინფორმაცია დაემატება მაღაზიის გაშვებამდე.</p><small>© {{ date('Y') }} VENTOR. ყველა უფლება დაცულია.</small></div></footer>
 @stack('scripts')
