@@ -3,13 +3,20 @@
 @source '../../../../app/Filament/**/*.php';
 @source '../../../../resources/views/filament/**/*.blade.php';
 
+/*
+|--------------------------------------------------------------------------
+| VENTOR Admin — restrained global theme
+|--------------------------------------------------------------------------
+| Keep Filament's native layout, spacing, form controls and overlays intact.
+| Only apply brand colors, typography and safe surface treatments globally.
+*/
+
 :root {
-    --ventor-ink: #14243b;
-    --ventor-muted: #718096;
-    --ventor-blue: #2563eb;
-    --ventor-border: #e4eaf3;
-    --ventor-surface: #ffffff;
     --ventor-canvas: #f4f7fc;
+    --ventor-ink: #17263d;
+    --ventor-muted: #718096;
+    --ventor-border: #e4eaf3;
+    --ventor-blue: #2563eb;
 }
 
 .fi-body {
@@ -22,75 +29,67 @@
     color: #edf4ff;
 }
 
-.fi-topbar {
-    border-bottom: 1px solid var(--ventor-border);
-    background: rgb(255 255 255 / 92%);
-    box-shadow: 0 2px 12px rgb(18 38 63 / 4%);
-    backdrop-filter: blur(14px);
-}
-
-.dark .fi-topbar {
-    background: rgb(14 25 42 / 92%);
-    border-color: #26364d;
+/* Navigation */
+.fi-sidebar,
+.fi-sidebar-header {
+    background-color: #101d31;
 }
 
 .fi-sidebar {
-    background: #101d31;
-    border-inline-end: 1px solid #20334f;
+    border-inline-end: 1px solid #263a58;
 }
 
 .fi-sidebar-header {
-    background: #101d31;
+    min-height: 72px;
     border-bottom: 1px solid #263a58;
-    min-height: 76px;
 }
 
 .fi-sidebar-header .fi-logo {
     color: #f7fbff;
-    font-weight: 900;
-    letter-spacing: .12em;
-}
-
-.fi-sidebar-nav {
-    padding: 14px 12px;
+    font-weight: 850;
+    letter-spacing: .08em;
 }
 
 .fi-sidebar-group-label {
-    color: #8fa8c8;
-    font-size: 10px;
-    font-weight: 850;
-    letter-spacing: .13em;
-    text-transform: uppercase;
+    color: #91a8c6;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .1em;
 }
 
 .fi-sidebar-item-button {
-    min-height: 42px;
-    border-radius: 10px;
+    min-height: 40px;
+    border-radius: 9px;
     color: #c3d2e6;
-    transition: background .18s ease, color .18s ease, transform .18s ease;
+    transition: background-color .16s ease, color .16s ease;
 }
 
 .fi-sidebar-item-button:hover {
     background: #1b3150;
     color: #fff;
-    transform: translateX(2px);
 }
 
 .fi-sidebar-item-active > .fi-sidebar-item-button,
 .fi-sidebar-item-button[aria-current="page"] {
-    background: linear-gradient(100deg, #1d5fc2, #287be8);
+    background: #225fba;
     color: #fff;
-    box-shadow: 0 7px 18px rgb(22 100 210 / 24%);
 }
 
-.fi-main {
-    background: transparent;
+/* Top bar and page headings */
+.fi-topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--ventor-border);
+}
+
+.dark .fi-topbar {
+    background: #101d31;
+    border-color: #26364d;
 }
 
 .fi-header-heading {
-    color: #14243b;
-    font-weight: 900;
-    letter-spacing: -.035em;
+    color: var(--ventor-ink);
+    font-weight: 800;
+    letter-spacing: -.025em;
 }
 
 .dark .fi-header-heading {
@@ -98,65 +97,45 @@
 }
 
 .fi-header-subheading {
-    color: #718096;
+    color: var(--ventor-muted);
 }
 
+/* Cards and sections: no clipping, no forced layout changes */
 .fi-section,
 .fi-wi-stats-overview-stat,
-.fi-ta-outer,
-.fi-fo-field-wrp,
-.fi-modal-window,
-.fi-dropdown-panel {
+.fi-ta-outer {
     border-color: var(--ventor-border);
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgb(20 40 70 / 5%);
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgb(20 40 70 / 4%);
 }
 
 .dark .fi-section,
 .dark .fi-wi-stats-overview-stat,
-.dark .fi-ta-outer,
-.dark .fi-fo-field-wrp,
-.dark .fi-modal-window,
-.dark .fi-dropdown-panel {
+.dark .fi-ta-outer {
     border-color: #26364d;
-    box-shadow: 0 5px 22px rgb(0 0 0 / 14%);
-}
-
-.fi-section {
-    overflow: hidden;
+    box-shadow: 0 3px 14px rgb(0 0 0 / 12%);
 }
 
 .fi-section-header {
-    padding: 17px 20px;
-    border-bottom: 1px solid var(--ventor-border);
+    border-bottom-color: var(--ventor-border);
 }
 
 .dark .fi-section-header {
-    border-color: #26364d;
+    border-bottom-color: #26364d;
 }
 
 .fi-section-header-heading,
 .fi-wi-stats-overview-stat-value {
-    font-weight: 850;
-    letter-spacing: -.025em;
+    font-weight: 800;
 }
 
-.fi-wi-stats-overview-stat {
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-
-.fi-wi-stats-overview-stat:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 26px rgb(20 40 70 / 9%);
-}
-
+/* Tables */
 .fi-ta-header-cell {
     background: #f5f8fd;
     color: #63748c;
-    font-size: 10px;
-    font-weight: 850;
-    letter-spacing: .07em;
-    text-transform: uppercase;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .045em;
 }
 
 .dark .fi-ta-header-cell {
@@ -165,95 +144,44 @@
 }
 
 .fi-ta-row {
-    transition: background .15s ease;
+    transition: background-color .14s ease;
 }
 
 .fi-ta-row:hover {
-    background: #f6f9ff;
+    background: #f7f9fd;
 }
 
 .dark .fi-ta-row:hover {
     background: #17283e;
 }
 
-.fi-ta-cell {
-    vertical-align: middle;
-}
-
-.fi-input-wrp,
-.fi-select-input,
-.fi-fo-textarea,
-.fi-fo-rich-editor {
-    border-radius: 10px;
-}
-
-.fi-input-wrp:focus-within {
-    border-color: #4388f5;
-    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+/* Inputs and actions: preserve Filament's native sizing and borders */
+.fi-input-wrp {
+    border-radius: 9px;
 }
 
 .fi-btn {
-    border-radius: 10px;
-    font-weight: 750;
-    transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.fi-btn:not(:disabled):hover {
-    transform: translateY(-1px);
-}
-
-.fi-btn-color-primary {
-    box-shadow: 0 5px 13px rgb(37 99 235 / 17%);
+    border-radius: 9px;
+    font-weight: 700;
 }
 
 .fi-badge {
-    border-radius: 999px;
-    font-weight: 800;
-}
-
-.fi-pagination {
-    padding: 12px 16px;
-}
-
-.fi-empty-state {
-    padding-block: 42px;
-}
-
-.fi-modal-window {
-    overflow: hidden;
-}
-
-.fi-fo-repeater {
-    border-radius: 13px;
+    font-weight: 750;
 }
 
 .fi-breadcrumbs {
     color: #8190a5;
-    font-size: 12px;
+    font-size: .75rem;
 }
 
 @media (max-width: 767px) {
-    .fi-main {
-        padding-inline: 14px;
-    }
-
-    .fi-header {
-        gap: 12px;
-    }
-
     .fi-header-heading {
-        font-size: 22px;
+        font-size: 1.25rem;
     }
 
-    .fi-section {
-        border-radius: 12px;
-    }
-
-    .fi-ta-ctn {
-        overflow-x: auto;
-    }
-
-    .fi-wi-stats-overview {
-        gap: 10px;
+    .fi-section,
+    .fi-wi-stats-overview-stat,
+    .fi-ta-outer {
+        border-radius: 11px;
     }
 }
