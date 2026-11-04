@@ -21,4 +21,21 @@ class Supplier extends Model
     {
         return $this->hasMany(PurchaseOrder::class);
     }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(SupplierPayment::class);
+    }
+
+    public function outstandingBalance(): float
+    {
+        return (float) $this->purchaseOrders()
+            ->where('status', 'received')
+            ->withSum('payments', 'amount')
+            ->get()
+            ->sum(fn (PurchaseOrder $order): float => max(
+                0,
+                (float) $order->subtotal - (float) ($order->payments_sum_amount ?? 0)
+            ));
+    }
 }
