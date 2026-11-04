@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\LoyaltyPointTransaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
