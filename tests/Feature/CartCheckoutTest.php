@@ -330,9 +330,16 @@ class CartCheckoutTest extends TestCase
         ]);
 
         $order->update(['status' => 'completed']);
+        $firstCompletedAt = $order->fresh()->completed_at;
+        $this->assertNotNull($firstCompletedAt);
+
         $order->update(['status' => 'processing']);
         $order->update(['status' => 'completed']);
 
+        $this->assertEquals(
+            $firstCompletedAt->toDateTimeString(),
+            $order->fresh()->completed_at?->toDateTimeString()
+        );
         $this->assertSame(125, (int) $user->fresh()->loyalty_points);
         $this->assertDatabaseCount('loyalty_point_transactions', 1);
         $this->assertDatabaseHas('loyalty_point_transactions', [
