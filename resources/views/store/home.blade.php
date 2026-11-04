@@ -1,6 +1,8 @@
 @extends('layouts.store')
 @push('head')<link rel="stylesheet" href="{{ asset('css/storefront-premium.css') }}">@endpush
 @section('title', 'VENTOR — პრემიუმ მოვლა ავტომობილისა და მოტოციკლისთვის')
+@section('meta_description', 'შეარჩიე ავტომობილისა და მოტოციკლის მოვლის საშუალებები VENTOR-ის კატალოგში. დაათვალიერე ახალი და რჩეული პროდუქტები, ფასები და მარაგი.')
+@section('canonical_url', route('home'))
 @section('content')
 <section class="hero">
     <div class="wrap">
@@ -36,23 +38,31 @@
         </div>
     </div>
 </section>
+@php
+    $homeProducts = $featured->isNotEmpty() ? $featured : $products;
+    $showingFeatured = $featured->isNotEmpty();
+@endphp
 <section class="section" style="background:#0b111a;border-block:1px solid var(--line)">
     <div class="wrap">
         <div class="section-head">
-            <div><div class="eyebrow">02 / SELECTED COLLECTION</div><h2>რჩეული პროდუქცია</h2></div>
+            <div>
+                <div class="eyebrow">02 / {{ $showingFeatured ? 'SELECTED COLLECTION' : 'LATEST ARRIVALS' }}</div>
+                <h2>{{ $showingFeatured ? 'რჩეული პროდუქცია' : 'ბოლო დამატებული პროდუქცია' }}</h2>
+            </div>
             <a href="{{ route('catalog') }}" class="muted">მთელი კატალოგი ↗</a>
         </div>
-        <div class="grid">
-            @forelse($featured as $product)
-                @include('store.partials.product-card', ['product' => $product])
-            @empty
-                <div class="card" style="grid-column:1/-1;padding:28px">
-                    <h3>რჩეული პროდუქცია მალე გამოჩნდება</h3>
-                    <p class="muted">ადმინისტრაციიდან მონიშნე აქტიური პროდუქტი როგორც რჩეული, რომ ის მთავარ გვერდზე გამოჩნდეს.</p>
-                    <a class="btn secondary" href="{{ route('catalog') }}">კატალოგის ნახვა</a>
-                </div>
-            @endforelse
-        </div>
+        @if($homeProducts->isNotEmpty())
+            <div class="grid">
+                @foreach($homeProducts as $product)
+                    @include('store.partials.product-card', ['product' => $product])
+                @endforeach
+            </div>
+        @else
+            <div class="card" style="padding:28px">
+                <h3>კატალოგი მზადდება</h3>
+                <p class="muted">პროდუქცია გამოჩნდება კატალოგში დამატებისა და გამოქვეყნების შემდეგ.</p>
+            </div>
+        @endif
     </div>
 </section>
 <section class="section" id="about">
