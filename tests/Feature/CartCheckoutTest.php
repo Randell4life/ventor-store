@@ -27,6 +27,19 @@ class CartCheckoutTest extends TestCase
         ], $overrides));
     }
 
+
+    public function test_checkout_renders_independent_non_nested_forms(): void
+    {
+        $product = $this->product();
+        $this->withSession(['cart' => [(string) $product->id => 1]])
+            ->get('/checkout')
+            ->assertOk()
+            ->assertSee('id="checkout-main-form"', false)
+            ->assertSee('action="'.route('checkout.store').'"', false)
+            ->assertSee('action="'.route('checkout.coupon.apply').'"', false)
+            ->assertSee('შეკვეთის დადასტურება');
+    }
+
     public function test_customer_can_add_product_and_cart_shows_summary(): void
     {
         $product = $this->product();
