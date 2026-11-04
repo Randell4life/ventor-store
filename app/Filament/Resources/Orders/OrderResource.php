@@ -54,6 +54,8 @@ class OrderResource extends Resource
             TextInput::make('delivery_fee')->label('მიწოდება (₾)')->disabled(),
             TextInput::make('total')->label('სულ გადასახდელი (₾)')->disabled(),
             TextInput::make('loyalty_points_earned')->label('დარიცხული ბონუს ქულები')->disabled(),
+            TextInput::make('loyalty_points_redeemed')->label('გამოყენებული ბონუს ქულები')->disabled(),
+            TextInput::make('loyalty_points_awarded_at')->label('ქულების დარიცხვის დრო')->disabled(),
             Repeater::make('items')
                 ->label('შეკვეთის პროდუქტები')
                 ->relationship()
@@ -98,6 +100,18 @@ class OrderResource extends Resource
                 TextColumn::make('city')->label('ქალაქი')->searchable()->toggleable(),
                 TextColumn::make('items_count')->counts('items')->label('პოზიციები')->sortable(),
                 TextColumn::make('total')->label('ჯამი')->money('GEL')->sortable()->weight('bold'),
+                TextColumn::make('loyalty_points_earned')
+                    ->label('დარიცხული ქულა')
+                    ->numeric()
+                    ->badge()
+                    ->color('success')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('loyalty_points_redeemed')
+                    ->label('გამოყენებული ქულა')
+                    ->numeric()
+                    ->badge()
+                    ->color('warning')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('payment_method')
                     ->label('გადახდა')
                     ->badge()
