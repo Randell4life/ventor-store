@@ -42,7 +42,9 @@ class Order extends Model
                 DB::transaction(function () use ($order): void {
                     $lockedOrder = static::query()->whereKey($order->getKey())->lockForUpdate()->first();
 
-                    if (! $lockedOrder || $lockedOrder->status !== 'cancelled') {
+                    if (! $lockedOrder
+                        || $lockedOrder->status !== 'cancelled'
+                        || $lockedOrder->cancellation_processed_at !== null) {
                         return;
                     }
 
@@ -126,6 +128,10 @@ class Order extends Model
                             ]);
                         }
                     }
+
+                    $lockedOrder->forceFill([
+                        'cancellation_processed_at' => now(),
+                    ])->saveQuietly();
                 });
 
                 return;
@@ -197,6 +203,7 @@ class Order extends Model
         'loyalty_points_earned',
         'loyalty_points_redeemed',
         'loyalty_points_awarded_at',
+        'cancellation_processed_at',
         'status',
         'payment_method',
     ];
@@ -211,6 +218,7 @@ class Order extends Model
             'loyalty_points_earned' => 'integer',
             'loyalty_points_redeemed' => 'integer',
             'loyalty_points_awarded_at' => 'datetime',
+            'cancellation_processed_at' => 'datetime',
         ];
     }
 
