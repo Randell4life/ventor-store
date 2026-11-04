@@ -52,7 +52,7 @@
     </script>
 @endpush
 @section('content')
-<section class="section">
+<section class="section product-page">
     <div class="wrap">
         <nav class="muted" aria-label="Breadcrumb" style="font-size:12px;margin-bottom:24px">
             <a href="{{ route('home') }}">მთავარი</a> / <a href="{{ route('catalog') }}">კატალოგი</a>
@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <div class="product-info">
+            <div class="product-info product-purchase-panel">
                 <div class="product-kicker">
                     <span class="eyebrow">{{ $product->category?->name ?? 'VENTOR COLLECTION' }}</span>
                     @if($product->is_featured)<span class="product-badge">რჩეული პროდუქტი</span>@endif
@@ -84,7 +84,7 @@
                     <p class="muted" style="line-height:1.9;font-size:14px">{{ $product->short_description }}</p>
                 @endif
 
-                <div style="margin:22px 0 16px">
+                <div class="product-price-block">
                     @if($product->hasActiveDiscount())
                         <div class="muted" style="font-size:14px;text-decoration:line-through">{{ number_format((float)$product->compare_at_price,2) }} ₾ <span style="color:#ffaaaa;font-size:13px">-{{ $product->discountPercentage() }}%</span></div>
                     @endif
