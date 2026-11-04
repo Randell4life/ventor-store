@@ -1,36 +1,35 @@
 <article class="card product-card">
-    <a href="{{ route('product.show', ['product' => $product->slug]) }}" aria-label="{{ $product->name }} — დეტალების ნახვა">
-        <div class="visual">
+    <a class="product-card-main" href="{{ route('product.show', ['product' => $product->slug]) }}" aria-label="{{ $product->name }} — დეტალების ნახვა">
+        <div class="visual product-card-visual">
+            @if($product->hasActiveDiscount())<span class="product-card-sale">-{{ $product->discountPercentage() }}%</span>@endif
             @if($product->image_path)
                 <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" loading="lazy" style="width:100%;height:100%;object-fit:contain">
             @else
                 <div class="bottle" aria-hidden="true"></div>
             @endif
+            <span class="product-card-zoom">↗</span>
         </div>
-        <div class="eyebrow">{{ $product->category?->name ?? 'VENTOR' }}</div>
-        <h3 style="font-size:15px;min-height:42px">{{ $product->name }}</h3>
-        @if($product->short_description)
-            <p class="muted" style="font-size:12px">{{ $product->short_description }}</p>
-        @endif
-        <div class="price">
-            @if($product->hasActiveDiscount())
-                <span style="text-decoration:line-through;color:var(--muted);font-size:13px">{{ number_format((float) $product->compare_at_price, 2) }} ₾</span>
-                <span style="display:inline-block;margin-left:6px;padding:3px 6px;background:#5b2020;color:#ffc2c2;font-size:11px">-{{ $product->discountPercentage() }}%</span>
-            @endif
-            {{ number_format((float) $product->price, 2) }} ₾
+        <div class="product-card-copy">
+            <div class="eyebrow">{{ $product->category?->name ?? 'VENTOR COLLECTION' }}</div>
+            <h3>{{ $product->name }}</h3>
+            @if($product->short_description)<p class="muted">{{ $product->short_description }}</p>@endif
+            <div class="product-card-price">
+                @if($product->hasActiveDiscount())<span class="product-card-old-price">{{ number_format((float) $product->compare_at_price, 2) }} ₾</span>@endif
+                <strong>{{ number_format((float) $product->price, 2) }} ₾</strong>
+            </div>
         </div>
     </a>
-    <div style="display:flex;gap:8px;align-items:center">
-        <a class="btn secondary" style="flex:1" href="{{ route('product.show', ['product' => $product->slug]) }}">დეტალები</a>
+    <div class="product-card-actions">
+        <a class="btn secondary" href="{{ route('product.show', ['product' => $product->slug]) }}">დეტალები</a>
         @if($product->stock > 0)
             <form method="POST" action="{{ route('cart.add') }}" style="margin:0">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="quantity" value="1">
-                <button class="btn" type="submit" aria-label="კალათაში დამატება: {{ $product->name }}">+</button>
+                <button class="btn" type="submit" aria-label="კალათაში დამატება: {{ $product->name }}">კალათაში +</button>
             </form>
         @else
-            <span class="muted" style="font-size:11px">არ არის მარაგში</span>
+            <span class="product-card-unavailable">არ არის მარაგში</span>
         @endif
     </div>
 </article>
