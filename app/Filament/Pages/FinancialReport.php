@@ -16,7 +16,7 @@ class FinancialReport extends Page
 
     protected static ?string $title = 'ფინანსური ანგარიში';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'გაყიდვები';
+    protected static string|\UnitEnum|null $navigationGroup = 'ფინანსები';
 
     protected static ?int $navigationSort = 20;
 
