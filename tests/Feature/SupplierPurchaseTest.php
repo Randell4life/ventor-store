@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class SupplierPurchaseTest extends TestCase
@@ -81,5 +82,53 @@ class SupplierPurchaseTest extends TestCase
             'product_id' => null,
             'product_name' => 'Archived Product',
         ]);
+    }
+
+    public function test_supplier_purchase_order_supports_partial_payments_and_tracks_balance(): void
+    {
+        $supplier = Supplier::create(['name' => 'Payment Supplier']);
+        $order = PurchaseOrder::create([
+            'supplier_id' => $supplier->id,
+            'status' => 'received',
+            'subtotal' => 250,
+        ]);
+
+        $firstPayment = $order->recordPayment(100, 'bank_transfer', 'TRX-001');
+        $secondPayment = $order->recordPayment(50, 'cash');
+
+        $this->assertSame('100.00', $firstPayment->amount);
+        $this->assertSame('50.00', $secondPayment->amount);
+        $this->assertEquals(150.0, $order->fresh()->paidAmount());
+        $this->assertEquals(100.0, $order->fresh()->balanceDue());
+        $this->assertSame('partial', $order->fresh()->paymentStatus());
+        $this->assertEquals(100.0, $supplier->fresh()->outstandingBalance());
+    }
+
+    public function test_supplier_payment_cannot_exceed_remaining_balance_or_be_recorded_before_receipt(): void
+    {
+        $supplier = Supplier::create(['name' => 'Protected Supplier']);
+        $draftOrder = PurchaseOrder::create([
+            'supplier_id' => $supplier->id,
+            'status' => 'ordered',
+            'subtotal' => 100,
+        ]);
+
+        try {
+            $draftOrder->recordPayment(10);
+            $this->fail('Payment should not be accepted before goods are received.');
+        } catch (ValidationException) {
+            $this->assertDatabaseCount('supplier_payments', 0);
+        }
+
+        $receivedOrder = PurchaseOrder::create([
+            'supplier_id' => $supplier->id,
+            'status' => 'received',
+            'subtotal' => 100,
+        ]);
+
+        $receivedOrder->recordPayment(80);
+
+        $this->expectException(ValidationException::class);
+        $receivedOrder->recordPayment(20.01);
     }
 }
