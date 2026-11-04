@@ -19,17 +19,27 @@ class StoreStats extends BaseWidget
         $monthCompletedRevenue = Order::where('status', 'completed')
             ->whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('total');
+        // ძველ შეკვეთებს შეიძლება თვითღირებულების snapshot არ ჰქონდეს — ისინი მოგებაში არ ჩავრთოთ.
+        $costTrackedOrders = Order::query()
+            ->where('status', 'completed')
+            ->whereHas('items')
+            ->whereDoesntHave('items', fn ($query) => $query->whereNull('unit_cost'))
+            ->get(['id', 'total']);
+        $costTrackedOrderIds = $costTrackedOrders->pluck('id');
+        $trackedCompletedRevenue = (float) $costTrackedOrders->sum('total');
         $completedCost = \\App\\Models\\OrderItem::query()
-            ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.status', 'completed')
-            ->sum(\\Illuminate\\Support\\Facades\\DB::raw('COALESCE(order_items.unit_cost, 0) * order_items.quantity'));
-        $completedGrossProfit = (float) $completedRevenue - (float) $completedCost;
-        $monthCompletedCost = \\App\\Models\\OrderItem::query()
-            ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.status', 'completed')
-            ->whereBetween('orders.updated_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum(\\Illuminate\\Support\\Facades\\DB::raw('COALESCE(order_items.unit_cost, 0) * order_items.quantity'));
-        $monthGrossProfit = (float) $monthCompletedRevenue - (float) $monthCompletedCost;
+            ->whereIn('order_id', $costTrackedOrderIds)
+            ->sum(\\Illuminate\\Support\\Facades\\DB::raw('unit_cost * quantity'));
+        $completedGrossProfit = $trackedCompletedRevenue - (float) $completedCost;
+
+        $monthTrackedOrders = $costTrackedOrders->filter(
+            fn (Order $order): bool => $order->updated_at?->between(now()->startOfMonth(), now()->endOfMonth()) ?? false
+        );
+        $monthTrackedOrderIds = $monthTrackedOrders->pluck('id');
+        $monthGrossProfit = (float) $monthTrackedOrders->sum('total')
+            - (float) \\App\\Models\\OrderItem::query()
+                ->whereIn('order_id', $monthTrackedOrderIds)
+                ->sum(\\Illuminate\\Support\\Facades\\DB::raw('unit_cost * quantity'));
         $completedDiscounts = Order::where('status', 'completed')->sum('discount_amount');
 
         return [
@@ -74,7 +84,7 @@ class StoreStats extends BaseWidget
                 ->color('success'),
 
             Stat::make('დასრულებული შეკვეთების მთლიანი მოგება', number_format($completedGrossProfit, 2).' ₾')
-                ->description('გაყიდვის თანხა მინუს დაფიქსირებული თვითღირებულება')
+                ->description('მხოლოდ სრულად აღრიცხული თვითღირებულების მქონე შეკვეთები')
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color($completedGrossProfit < 0 ? 'danger' : 'success'),
 
