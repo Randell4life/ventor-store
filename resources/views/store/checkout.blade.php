@@ -55,6 +55,7 @@
                     </div>
                 @endforeach
                 <div class="checkout-summary-line"><span class="muted">პროდუქტების ჯამი</span><strong>{{ number_format($total,2) }} ₾</strong></div>
+                @if($savings > 0)<div class="checkout-summary-line"><span style="color:#8eddb5">ფასდაკლებით დაზოგე</span><strong style="color:#8eddb5">−{{ number_format($savings,2) }} ₾</strong></div>@endif
                 <div class="checkout-summary-line"><span class="muted">მიწოდება</span><span class="muted">შეთანხმებით</span></div>
                 <div style="display:flex;justify-content:space-between;gap:12px;padding:20px 0;font-size:21px"><strong>სულ</strong><strong>{{ number_format($total,2) }} ₾</strong></div>
                 <a href="{{ route('cart.index') }}">← კალათის რედაქტირება</a>
