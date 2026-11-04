@@ -28,6 +28,7 @@ class CheckoutController extends Controller
                 'product' => $product,
                 'quantity' => $quantity,
                 'line_total' => (float) $product->price * $quantity,
+                'savings' => $product->hasActiveDiscount() ? ((float) $product->compare_at_price - (float) $product->price) * $quantity : 0,
             ];
         })->filter()->values();
     }
@@ -44,6 +45,7 @@ class CheckoutController extends Controller
         return view('store.checkout', [
             'lines' => $lines,
             'total' => $lines->sum('line_total'),
+            'savings' => $lines->sum('savings'),
         ]);
     }
 
