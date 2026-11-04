@@ -53,6 +53,7 @@ class OrderResource extends Resource
             TextInput::make('subtotal')->label('პროდუქტების ჯამი (₾)')->disabled(),
             TextInput::make('delivery_fee')->label('მიწოდება (₾)')->disabled(),
             TextInput::make('total')->label('სულ გადასახდელი (₾)')->disabled(),
+            TextInput::make('loyalty_points_earned')->label('დარიცხული ბონუს ქულები')->disabled(),
             Repeater::make('items')
                 ->label('შეკვეთის პროდუქტები')
                 ->relationship()
