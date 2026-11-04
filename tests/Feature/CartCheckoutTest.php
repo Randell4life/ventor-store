@@ -89,6 +89,28 @@ class CartCheckoutTest extends TestCase
         $this->assertSame([], session('cart', []));
     }
 
+    public function test_checkout_snapshots_product_cost_on_order_item(): void
+    {
+        $product = $this->product(['cost_price' => 8.25, 'price' => 25.50, 'stock' => 5]);
+        $this->withSession(['cart' => [(string) $product->id => 2]]);
+
+        $this->post('/checkout', [
+            'customer_name' => 'Cost Snapshot Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'payment_method' => 'cash_on_delivery',
+        ])->assertRedirect();
+
+        $order = Order::with('items')->firstOrFail();
+        $this->assertSame('8.25', $order->items->first()->unit_cost);
+
+        $product->update(['cost_price' => 12.50]);
+
+        $this->assertSame('8.25', $order->items->first()->fresh()->unit_cost);
+        $this->assertSame(16.50, (float) $order->items->sum(fn ($item) => (float) $item->unit_cost * $item->quantity));
+    }
+
     public function test_completed_order_awards_points_only_once(): void
     {
         $user = User::create([
