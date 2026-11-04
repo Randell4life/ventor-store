@@ -54,6 +54,10 @@ class PurchaseOrder extends Model
 
     public function paidAmount(): float
     {
+        if (array_key_exists('payments_sum_amount', $this->getAttributes())) {
+            return (float) ($this->payments_sum_amount ?? 0);
+        }
+
         return (float) $this->payments()->sum('amount');
     }
 
@@ -79,6 +83,19 @@ class PurchaseOrder extends Model
     ): SupplierPayment {
         return DB::transaction(function () use ($amount, $paymentMethod, $reference, $note): SupplierPayment {
             $order = static::query()->lockForUpdate()->findOrFail($this->getKey());
+
+            if (! is_finite($amount) || $amount <= 0) {
+                throw ValidationException::withMessages([
+                    'amount' => 'გადახდის თანხა უნდა იყოს 0-ზე მეტი.',
+                ]);
+            }
+
+            if (! in_array($paymentMethod, ['bank_transfer', 'cash', 'card', 'other'], true)) {
+                throw ValidationException::withMessages([
+                    'payment_method' => 'გადახდის მეთოდი არასწორია.',
+                ]);
+            }
+
             $amountInCents = (int) round($amount * 100);
             $paidInCents = (int) round((float) $order->payments()->sum('amount') * 100);
             $totalInCents = (int) round((float) $order->subtotal * 100);
@@ -90,7 +107,7 @@ class PurchaseOrder extends Model
                 ]);
             }
 
-            if (! is_finite($amount) || $amountInCents <= 0) {
+            if ($amountInCents <= 0) {
                 throw ValidationException::withMessages([
                     'amount' => 'გადახდის თანხა უნდა იყოს 0-ზე მეტი.',
                 ]);
