@@ -21,6 +21,9 @@ class Order extends Model
         'subtotal',
         'delivery_fee',
         'total',
+        'coupon_id',
+        'coupon_code',
+        'discount_amount',
         'status',
         'payment_method',
     ];
@@ -31,6 +34,7 @@ class Order extends Model
             'subtotal' => 'decimal:2',
             'delivery_fee' => 'decimal:2',
             'total' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
         ];
     }
 
