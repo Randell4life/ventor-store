@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\LoyaltyPointTransaction;
+use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -109,7 +112,7 @@ class CartCheckoutTest extends TestCase
             'loyalty_points_to_redeem' => 100,
         ])->assertRedirect();
 
-        $order = \\App\\Models\\Order::firstOrFail();
+        $order = Order::firstOrFail();
 
         $this->assertSame('50.00', $order->total);
         $this->assertSame(100, $order->loyalty_points_redeemed);
