@@ -9,6 +9,7 @@
 </div>
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:28px 0">
 <a class="card" href="{{ route('account.orders') }}"><div class="eyebrow">ORDERS</div><h2>ჩემი შეკვეთები</h2><p class="muted">შეკვეთების ისტორია და დეტალები</p></a>
+<a class="card" href="{{ route('account.rewards') }}"><div class="eyebrow">VENTOR REWARDS</div><h2>ქულების ისტორია</h2><p class="muted">დარიცხული და გამოყენებული ქულები</p></a>
 <a class="card" href="{{ route('account.profile.edit') }}"><div class="eyebrow">PROFILE</div><h2>პროფილის მართვა</h2><p class="muted">პირადი და კომპანიის ინფორმაცია</p></a>
 <a class="card" href="{{ route('catalog') }}"><div class="eyebrow">SHOP</div><h2>კატალოგი</h2><p class="muted">აღმოაჩინე VENTOR-ის პროდუქტები</p></a>
 </div>
