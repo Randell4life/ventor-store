@@ -14,7 +14,12 @@ class StoreStats extends BaseWidget
         $newOrders = Order::where('status', 'new')->count();
         $todayOrders = Order::whereDate('created_at', today())->count();
         $lowStock = Product::where('is_active', true)->where('stock', '<=', 5)->count();
-        $revenue = Order::whereIn('status', ['confirmed', 'processing', 'shipped', 'completed'])->sum('total');
+        $activeOrderValue = Order::whereIn('status', ['confirmed', 'processing', 'shipped'])->sum('total');
+        $completedRevenue = Order::where('status', 'completed')->sum('total');
+        $monthCompletedRevenue = Order::where('status', 'completed')
+            ->whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->sum('total');
+        $completedDiscounts = Order::where('status', 'completed')->sum('discount_amount');
 
         return [
             Stat::make('პროდუქტები', Product::count())
@@ -42,10 +47,25 @@ class StoreStats extends BaseWidget
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($lowStock > 0 ? 'danger' : 'success'),
 
-            Stat::make('შეკვეთების ბრუნვა', number_format((float) $revenue, 2).' ₾')
-                ->description('დადასტურებული და შესრულების პროცესში')
+            Stat::make('აქტიური შეკვეთების ღირებულება', number_format((float) $activeOrderValue, 2).' ₾')
+                ->description('დადასტურებული, მუშავდება და გაგზავნილია')
+                ->descriptionIcon('heroicon-m-shopping-bag')
+                ->color('info'),
+
+            Stat::make('დასრულებული შეკვეთები', number_format((float) $completedRevenue, 2).' ₾')
+                ->description('დასრულებული შეკვეთების ჯამი')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
+
+            Stat::make('ამ თვის დასრულებული გაყიდვები', number_format((float) $monthCompletedRevenue, 2).' ₾')
+                ->description('მიმდინარე თვეში დასრულებული შეკვეთები')
+                ->descriptionIcon('heroicon-m-calendar-days')
+                ->color('success'),
+
+            Stat::make('დასრულებული შეკვეთების ფასდაკლება', number_format((float) $completedDiscounts, 2).' ₾')
+                ->description('კუპონები და Rewards ქულები')
+                ->descriptionIcon('heroicon-m-ticket')
+                ->color('warning'),
         ];
     }
 }
