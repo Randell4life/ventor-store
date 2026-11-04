@@ -74,6 +74,67 @@
         </section>
 
         <section class="space-y-4">
+        <section class="space-y-4">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">საოპერაციო ხარჯები</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400">ხარჯები აისახება ხარჯის თარიღით. გადახდილი და გადასახდელი თანხები ცალ-ცალკე აღირიცხება.</p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                @foreach ([
+                    ['ხარჯების ჯამი', $operatingExpenses],
+                    ['გადახდილი', $paidExpenses],
+                    ['გადასახდელი', $unpaidExpenses],
+                    ['საოპერაციო შედეგი*', $operatingResult],
+                ] as [$label, $value])
+                    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $label }}</div>
+                        <div class="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white">{{ number_format($value, 2) }} ₾</div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 class="font-semibold text-gray-950 dark:text-white">ხარჯები კატეგორიების მიხედვით</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-600 dark:bg-gray-950 dark:text-gray-300">
+                            <tr><th class="px-5 py-3">კატეგორია</th><th class="px-5 py-3 text-right">ჩანაწერები</th><th class="px-5 py-3 text-right">სულ</th><th class="px-5 py-3 text-right">გადახდილი</th><th class="px-5 py-3 text-right">გადასახდელი</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @forelse ($expensesByCategory as $row)
+                                <tr><td class="px-5 py-3 font-medium">{{ $row['category'] }}</td><td class="px-5 py-3 text-right">{{ number_format($row['count']) }}</td><td class="px-5 py-3 text-right">{{ number_format($row['total'], 2) }} ₾</td><td class="px-5 py-3 text-right">{{ number_format($row['paid'], 2) }} ₾</td><td class="px-5 py-3 text-right">{{ number_format($row['unpaid'], 2) }} ₾</td></tr>
+                            @empty
+                                <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">არჩეულ პერიოდში ხარჯები არ არის.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800"><h3 class="font-semibold text-gray-950 dark:text-white">ხარჯების დეტალური სია</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-600 dark:bg-gray-950 dark:text-gray-300">
+                            <tr><th class="px-5 py-3">თარიღი</th><th class="px-5 py-3">აღწერა</th><th class="px-5 py-3 text-right">თანხა</th><th class="px-5 py-3">სტატუსი</th><th class="px-5 py-3">მეთოდი</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @forelse ($expenses as $expense)
+                                <tr>
+                                    <td class="whitespace-nowrap px-5 py-3">{{ $expense->expense_date?->format('d.m.Y') }}</td>
+                                    <td class="px-5 py-3">{{ $expense->description }}</td>
+                                    <td class="whitespace-nowrap px-5 py-3 text-right">{{ number_format((float) $expense->amount, 2) }} ₾</td>
+                                    <td class="px-5 py-3">{{ $expense->status === 'paid' ? 'გადახდილი' : 'გადასახდელი' }}</td>
+                                    <td class="px-5 py-3">{{ \App\Models\OperatingExpense::paymentMethods()[$expense->payment_method] ?? '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">არჩეულ პერიოდში ხარჯები არ არის.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">* საოპერაციო შედეგი ითვლის მხოლოდ იმ დასრულებულ შეკვეთებს, რომელთა თვითღირებულებაც სრულად არის აღრიცხული. გადასახადები, საბანკო საკომისიოები და სხვა ცალკე აღურიცხავი ხარჯები წმინდა მოგებაში არ არის გათვალისწინებული.</p>
+        </section>
+
             <h2 class="text-lg font-semibold text-gray-950 dark:text-white">გაყიდვების ფინანსური ანგარიში</h2>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @foreach ([
