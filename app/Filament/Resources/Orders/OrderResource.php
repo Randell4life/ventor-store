@@ -55,13 +55,29 @@ class OrderResource extends Resource
             TextInput::make('total')->label('სულ გადასახდელი (₾)')->disabled(),
             TextInput::make('cost_total')
                 ->label('შეკვეთის თვითღირებულება (₾)')
-                ->state(fn (?Order $record): string => number_format((float) ($record?->items()->selectRaw('SUM(COALESCE(unit_cost, 0) * quantity) as aggregate')->value('aggregate') ?? 0), 2))
+                ->state(function (?Order $record): string {
+                    $items = $record?->items;
+                    if (! $items || $items->isEmpty() || $items->contains(fn ($item): bool => $item->unit_cost === null)) {
+                        return 'არ არის სრულად აღრიცხული';
+                    }
+
+                    return number_format((float) $items->sum(fn ($item): float => (float) $item->unit_cost * $item->quantity), 2);
+                })
                 ->disabled(),
             TextInput::make('gross_profit')
                 ->label('მთლიანი მოგება (₾)')
-                ->state(fn (?Order $record): string => number_format((float) ($record?->total ?? 0) - (float) ($record?->items()->selectRaw('SUM(COALESCE(unit_cost, 0) * quantity) as aggregate')->value('aggregate') ?? 0), 2))
+                ->state(function (?Order $record): string {
+                    $items = $record?->items;
+                    if (! $record || ! $items || $items->isEmpty() || $items->contains(fn ($item): bool => $item->unit_cost === null)) {
+                        return 'ვერ გამოითვლება';
+                    }
+
+                    $cost = (float) $items->sum(fn ($item): float => (float) $item->unit_cost * $item->quantity);
+
+                    return number_format((float) $record->total - $cost, 2);
+                })
                 ->disabled()
-                ->helperText('შეკვეთის ჯამი მინუს გაყიდვისას დაფიქსირებული თვითღირებულება. საოპერაციო ხარჯები და გადასახადები არ შედის.'),
+                ->helperText('მხოლოდ აღრიცხული თვითღირებულების მქონე შეკვეთაზე. საოპერაციო ხარჯები და გადასახადები არ შედის.'),
             TextInput::make('loyalty_points_earned')->label('დარიცხული ბონუს ქულები')->disabled(),
             TextInput::make('loyalty_points_redeemed')->label('გამოყენებული ბონუს ქულები')->disabled(),
             TextInput::make('loyalty_points_awarded_at')->label('ქულების დარიცხვის დრო')->disabled(),
