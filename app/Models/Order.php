@@ -48,13 +48,19 @@ class Order extends Model
 
                     $reference = 'ORDER-CANCEL-'.$lockedOrder->id;
 
-                    foreach ($lockedOrder->items()->whereNotNull('product_id')->get() as $item) {
-                        $product = Product::query()->whereKey($item->product_id)->lockForUpdate()->first();
+                    $itemsByProduct = $lockedOrder->items()
+                        ->whereNotNull('product_id')
+                        ->get()
+                        ->groupBy('product_id');
+
+                    foreach ($itemsByProduct as $productId => $items) {
+                        $product = Product::query()->whereKey($productId)->lockForUpdate()->first();
 
                         if (! $product) {
                             continue;
                         }
 
+                        $orderedQuantity = (int) $items->sum('quantity');
                         $soldQuantity = abs((int) InventoryMovement::query()
                             ->where('product_id', $product->id)
                             ->where('movement_type', 'sale')
@@ -69,7 +75,7 @@ class Order extends Model
 
                         $quantity = min(
                             max(0, $soldQuantity - $alreadyReturned),
-                            (int) $item->quantity
+                            $orderedQuantity
                         );
 
                         if ($quantity < 1) {
