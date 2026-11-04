@@ -19,6 +19,12 @@ return new class extends Migration {
             });
         }
 
+        if (! Schema::hasColumn('orders', 'loyalty_points_redeemed')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->unsignedInteger('loyalty_points_redeemed')->default(0);
+            });
+        }
+
         if (! Schema::hasColumn('orders', 'loyalty_points_awarded_at')) {
             Schema::table('orders', function (Blueprint $table) {
                 $table->timestamp('loyalty_points_awarded_at')->nullable();
@@ -28,7 +34,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        foreach (['loyalty_points_awarded_at', 'loyalty_points_earned'] as $column) {
+        foreach (['loyalty_points_awarded_at', 'loyalty_points_redeemed', 'loyalty_points_earned'] as $column) {
             if (Schema::hasColumn('orders', $column)) {
                 Schema::table('orders', function (Blueprint $table) use ($column) {
                     $table->dropColumn($column);
