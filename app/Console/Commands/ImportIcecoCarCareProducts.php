@@ -173,33 +173,61 @@ class ImportIcecoCarCareProducts extends Command
     {
         $imageUrl = $product['images'][0]['src'] ?? null;
 
-        if (! is_string($imageUrl) || ! str_starts_with($imageUrl, 'https://iceco.ge/')) {
+        if (! is_string($imageUrl) || ! filter_var($imageUrl, FILTER_VALIDATE_URL)) {
             return null;
         }
 
-        $extension = strtolower(pathinfo((string) parse_url($imageUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
-        $extension = in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true) ? $extension : 'jpg';
-        $path = 'products/iceco/'.$slug.'.'.$extension;
+        $parts = parse_url($imageUrl);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
 
-        if (Storage::disk('public')->exists($path)) {
-            return $path;
+        // Only download images hosted by ICECO itself (including its subdomains).
+        if (! in_array($scheme, ['https', 'http'], true)
+            || ($host !== 'iceco.ge' && ! str_ends_with($host, '.iceco.ge'))) {
+            return null;
         }
 
         try {
-            $response = Http::timeout(30)->retry(2, 500)->get($imageUrl)->throw();
-            $contentType = strtolower((string) $response->header('Content-Type'));
+            $response = Http::timeout(30)->retry(2, 500)->withHeaders([
+                'User-Agent' => 'VENTOR product catalog importer/1.0',
+                'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            ])->get($imageUrl)->throw();
 
-            if (! str_starts_with($contentType, 'image/')) {
+            $contentType = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
+            $extensions = [
+                'image/jpeg' => 'jpg',
+                'image/jpg' => 'jpg',
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                'image/gif' => 'gif',
+                'image/avif' => 'avif',
+            ];
+
+            if (! isset($extensions[$contentType])) {
+                $this->warn('ფოტო გამოტოვებულია (არასწორი Content-Type): '.($product['name'] ?? $slug));
+
                 return null;
             }
 
-            Storage::disk('public')->put($path, $response->body());
+            $path = 'products/iceco/'.$slug.'.'.$extensions[$contentType];
+
+            if (Storage::disk('public')->exists($path)) {
+                return $path;
+            }
+
+            if (! Storage::disk('public')->put($path, $response->body())) {
+                $this->warn('ფოტოს შენახვა ვერ მოხერხდა: '.($product['name'] ?? $slug));
+
+                return null;
+            }
 
             return $path;
         } catch (Throwable $exception) {
             report($exception);
+            $this->warn('ფოტოს ჩამოტვირთვა ვერ მოხერხდა: '.($product['name'] ?? $slug).' — '.$exception->getMessage());
 
             return null;
         }
     }
+}
 }
