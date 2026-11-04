@@ -47,6 +47,36 @@ class CustomerAccountTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_customer_can_view_their_loyalty_points_history(): void
+    {
+        $user = User::create([
+            'name' => 'Rewards Customer',
+            'email' => 'rewards@example.com',
+            'password' => Hash::make('StrongPassword123!'),
+            'is_admin' => false,
+        ]);
+
+        LoyaltyPointTransaction::create([
+            'user_id' => $user->id,
+            'type' => 'earned',
+            'points' => 150,
+            'balance_after' => 150,
+            'description' => 'დასრულებული შეკვეთის ბონუსი',
+        ]);
+
+        $this->actingAs($user)
+            ->get('/account/rewards')
+            ->assertOk()
+            ->assertSee('ქულების ისტორია')
+            ->assertSee('150')
+            ->assertSee('დასრულებული შეკვეთის ბონუსი');
+    }
+
+    public function test_rewards_history_is_protected_from_guests(): void
+    {
+        $this->get('/account/rewards')->assertRedirect('/login');
+    }
+
     public function test_account_is_protected_from_guests(): void
     {
         $this->get('/account')->assertRedirect('/login');
