@@ -76,13 +76,18 @@ class CheckoutController extends Controller
             }
         }
 
+        $availablePoints = auth()->user() ? (int) auth()->user()->loyalty_points : 0;
+        $maxRedeemablePoints = min($availablePoints, (int) floor(max(0, $subtotal - $couponDiscount) * 30));
+
         return view('store.checkout', [
             'lines' => $lines,
             'subtotal' => $subtotal,
-            'total' => max(0, $subtotal - $couponDiscount),
+            'total' => max(0, $subtotal - $couponDiscount - $pointsDiscount),
             'savings' => $lines->sum('savings'),
             'coupon' => $coupon,
             'couponDiscount' => $couponDiscount,
+            'availablePoints' => $availablePoints,
+            'maxRedeemablePoints' => $maxRedeemablePoints,
         ]);
     }
 
@@ -96,6 +101,7 @@ class CheckoutController extends Controller
             'address' => ['required', 'string', 'max:255'],
             'note' => ['nullable', 'string', 'max:1000'],
             'payment_method' => ['required', 'in:cash_on_delivery,bank_transfer'],
+            'loyalty_points_to_redeem' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $cart = $request->session()->get('cart', []);
@@ -139,12 +145,32 @@ class CheckoutController extends Controller
                 $coupon->increment('used_count');
             }
 
+            $pointsToRedeem = (int) ($data['loyalty_points_to_redeem'] ?? 0);
+            $pointsDiscount = 0.0;
+
+            if ($pointsToRedeem > 0) {
+                if (! auth()->check()) {
+                    throw ValidationException::withMessages(['loyalty_points_to_redeem' => 'ქულების გამოსაყენებლად შედი შენს ანგარიშში.']);
+                }
+
+                $user = auth()->user()->newQuery()->whereKey(auth()->id())->lockForUpdate()->firstOrFail();
+                $maxPoints = min((int) $user->loyalty_points, (int) floor(max(0, $subtotal - $couponDiscount) * 30));
+
+                if ($pointsToRedeem > $maxPoints) {
+                    throw ValidationException::withMessages(['loyalty_points_to_redeem' => 'ქულების რაოდენობა შეიცვალა ან აჭარბებს დასაშვებ ლიმიტს.']);
+                }
+
+                $pointsDiscount = $pointsToRedeem / 100;
+                $user->decrement('loyalty_points', $pointsToRedeem);
+            }
+
             $order = Order::create([
                 ...$data,
                 'user_id' => auth()->id(),
                 'coupon_id' => $coupon?->id,
                 'coupon_code' => $coupon?->code,
-                'discount_amount' => $couponDiscount,
+                'discount_amount' => $couponDiscount + $pointsDiscount,
+                'loyalty_points_redeemed' => $pointsToRedeem,
                 'order_number' => 'VNT-'.now()->format('ymd').'-'.Str::upper(Str::random(5)),
                 'public_token' => Str::random(64),
                 'subtotal' => $subtotal,
