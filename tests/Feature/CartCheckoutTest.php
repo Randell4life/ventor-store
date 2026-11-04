@@ -89,6 +89,69 @@ class CartCheckoutTest extends TestCase
         $this->assertSame([], session('cart', []));
     }
 
+    public function test_completed_order_awards_points_only_once(): void
+    {
+        $user = User::create([
+            'name' => 'Completed Buyer',
+            'email' => 'completed-buyer@example.com',
+            'password' => 'StrongPassword123!',
+            'is_admin' => false,
+            'loyalty_points' => 0,
+        ]);
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'order_number' => 'VNT-TEST-REWARD-01',
+            'customer_name' => 'Completed Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'subtotal' => 125.75,
+            'delivery_fee' => 0,
+            'total' => 125.75,
+            'status' => 'new',
+            'payment_method' => 'cash_on_delivery',
+        ]);
+
+        $order->update(['status' => 'completed']);
+        $order->update(['status' => 'processing']);
+        $order->update(['status' => 'completed']);
+
+        $this->assertSame(125, (int) $user->fresh()->loyalty_points);
+        $this->assertDatabaseCount('loyalty_point_transactions', 1);
+        $this->assertDatabaseHas('loyalty_point_transactions', [
+            'user_id' => $user->id,
+            'order_id' => $order->id,
+            'type' => 'earned',
+            'points' => 125,
+            'balance_after' => 125,
+        ]);
+        $this->assertSame(125, (int) $order->fresh()->loyalty_points_earned);
+        $this->assertNotNull($order->fresh()->loyalty_points_awarded_at);
+    }
+
+    public function test_guest_order_does_not_award_loyalty_points(): void
+    {
+        $order = Order::create([
+            'order_number' => 'VNT-TEST-GUEST-01',
+            'customer_name' => 'Guest Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'subtotal' => 50,
+            'delivery_fee' => 0,
+            'total' => 50,
+            'status' => 'new',
+            'payment_method' => 'cash_on_delivery',
+        ]);
+
+        $order->update(['status' => 'completed']);
+
+        $this->assertSame(0, (int) $order->fresh()->loyalty_points_earned);
+        $this->assertNotNull($order->fresh()->loyalty_points_awarded_at);
+        $this->assertDatabaseCount('loyalty_point_transactions', 0);
+    }
+
     public function test_customer_can_redeem_points_and_transaction_is_linked_to_order(): void
     {
         $user = User::create([
