@@ -37,6 +37,7 @@ class InventoryMovementResource extends Resource
             TextColumn::make('movement_type')->label('ოპერაცია')->badge()
                 ->formatStateUsing(fn (string $state): string => match ($state) {
                     'sale' => 'გაყიდვა',
+                    'sale_return' => 'გაუქმებული შეკვეთიდან დაბრუნება',
                     'restock' => 'მარაგის შევსება',
                     'writeoff' => 'ჩამოწერა / დაზიანება',
                     'stocktake' => 'ინვენტარიზაცია',
@@ -46,7 +47,7 @@ class InventoryMovementResource extends Resource
                 })
                 ->color(fn (string $state): string => match ($state) {
                     'sale' => 'warning',
-                    'restock', 'opening_balance' => 'success',
+                    'restock', 'opening_balance', 'sale_return' => 'success',
                     'writeoff' => 'danger',
                     'stocktake', 'adjustment' => 'info',
                     default => 'gray',
@@ -60,6 +61,7 @@ class InventoryMovementResource extends Resource
         ])->filters([
             SelectFilter::make('movement_type')->label('ოპერაცია')->options([
                 'sale' => 'გაყიდვა',
+                'sale_return' => 'გაუქმებული შეკვეთიდან დაბრუნება',
                 'restock' => 'მარაგის შევსება',
                 'adjustment' => 'კორექტირება',
             ]),
