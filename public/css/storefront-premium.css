@@ -90,3 +90,48 @@ footer{background:#050910;border-color:#20334b}
 .about-copy p{color:#aebed1;line-height:2;font-size:14px;margin:0 0 24px}
 @media(max-width:850px){.home-hero,.hero-inner{min-height:570px}.hero-inner{padding:75px 0 90px}.hero-side-note{display:none}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.benefit-grid{gap:12px}.benefit-grid small{font-size:9px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.search-panel{align-items:flex-start;flex-direction:column}.home-search-form{width:100%}.about-grid{gap:28px}}
 @media(max-width:560px){.home-hero,.hero-inner{min-height:590px}.home-hero .hero-image{background-position:58% center;opacity:.42}.home-hero .hero-shade{background:linear-gradient(90deg,#070b12f5,#070b12b8),linear-gradient(0deg,#070b12 0%,transparent 70%)}.hero-inner{padding:58px 0 80px}.hero-copy h1{font-size:clamp(43px,12vw,59px)}.hero-copy>p{font-size:13px}.hero-proof{gap:12px;margin-top:42px}.hero-proof span{font-size:9px}.benefit-grid{grid-template-columns:1fr;padding:18px 0}.benefit-grid>div{gap:12px}.collection-grid{grid-template-columns:1fr 1fr;gap:9px}.collection-card{min-height:195px;padding:14px}.collection-content{left:14px;right:12px;bottom:14px}.collection-content h3{font-size:17px}.collection-content p{font-size:10px}.collection-arrow{right:13px;top:12px}.search-panel{padding:23px 18px}.home-search-form{flex-direction:column}.home-search-form .btn{width:100%}.about-grid{grid-template-columns:1fr;gap:12px}.about-grid h2{font-size:38px}.hero-bottom-line{font-size:8px}}
+
+
+/* VENTOR manufacturing identity — shared storefront system */
+body{letter-spacing:.005em}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:36px;padding-bottom:30px}
+.footer-grid>div{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.footer-grid>div:first-child p{max-width:340px;line-height:1.9}
+.footer-grid strong{color:#eaf3ff;font-size:13px;margin-bottom:4px}
+.footer-grid a:not(.logo){font-size:12px;color:#a9bad0}
+.footer-grid a:not(.logo):hover{color:var(--ice)}
+.footer-bottom{border-top:1px solid #20334b;padding-top:20px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;font-size:11px}
+.ventor-manufacturing-hero{min-height:650px}
+.ventor-manufacturing-hero .hero-image{background-image:url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=2200&q=88');background-position:center 48%;opacity:.48;filter:saturate(.65) contrast(1.12)}
+.ventor-manufacturing-hero .hero-shade{background:linear-gradient(90deg,#070b12 0%,#070b12f2 34%,#070b12a8 68%,#070b1240 100%),linear-gradient(0deg,#070b12 0%,transparent 40%,#070b1266 100%)}
+.ventor-manufacturing-hero .hero-copy{max-width:790px}
+.ventor-manufacturing-hero .hero-copy h1{font-size:clamp(48px,7vw,86px);line-height:1.14}
+.ventor-manufacturing-hero .hero-copy h1 span{color:#8fc7ff}
+.industry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.industry-card{min-height:360px;padding:25px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;border:1px solid #263a54;background:linear-gradient(145deg,#14243a,#0b121d);transition:transform .22s,border-color .22s}
+.industry-card:before{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#070b12 0%,#070b12d9 40%,#070b1220 100%);z-index:0}
+.industry-card:after{content:'';position:absolute;inset:0;background-position:center;background-size:cover;opacity:.36;z-index:-1;transition:transform .4s}
+.industry-auto:after{background-image:url('https://images.unsplash.com/photo-1607860308413-6c7c2e3c9a6c?auto=format&fit=crop&w=900&q=80')}
+.industry-home:after{background-image:url('https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?auto=format&fit=crop&w=900&q=80')}
+.industry-industry:after{background-image:url('https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=80')}
+.industry-card:hover{transform:translateY(-5px);border-color:#398fff}
+.industry-card:hover:after{transform:scale(1.05)}
+.industry-index,.industry-card>div{position:relative;z-index:1}
+.industry-index{font-size:10px;letter-spacing:.18em;color:#a9cfff}
+.industry-card>div{margin-top:auto}
+.industry-card h3{font-size:clamp(21px,2.2vw,28px);margin:10px 0}
+.industry-card p{font-size:12px;line-height:1.85;color:#b6c5d8;max-width:320px}
+.industry-card .collection-link{margin-top:14px}
+.production-section{background:linear-gradient(115deg,#0c1522,#080d15);border-block:1px solid #20334b}
+.production-layout{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:start}
+.production-copy h2{font-size:clamp(34px,4.7vw,58px);line-height:1.2;letter-spacing:-.04em;margin:18px 0}
+.production-copy h2 span{color:#8fc7ff}
+.production-copy p{font-size:14px;line-height:2;color:#aebed1;max-width:540px;margin:0 0 28px}
+.production-steps{border-top:1px solid #2a405c}
+.production-step{display:flex;align-items:flex-start;gap:20px;padding:20px 0;border-bottom:1px solid #2a405c}
+.production-step>span{font-size:12px;color:#8fc7ff;letter-spacing:.12em;padding-top:3px}
+.production-step strong,.production-step small{display:block}
+.production-step strong{font-size:14px;color:#edf5ff}
+.production-step small{font-size:11px;line-height:1.7;color:#9aaec7;margin-top:6px}
+@media(max-width:850px){.industry-grid{grid-template-columns:1fr 1fr}.industry-card:last-child{grid-column:1/-1}.production-layout{grid-template-columns:1fr;gap:36px}.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.ventor-manufacturing-hero,.ventor-manufacturing-hero .hero-inner{min-height:590px}.ventor-manufacturing-hero .hero-image{background-position:58% center;opacity:.34}.ventor-manufacturing-hero .hero-shade{background:linear-gradient(90deg,#070b12f5,#070b12c9),linear-gradient(0deg,#070b12 0%,transparent 70%)}.ventor-manufacturing-hero .hero-copy h1{font-size:clamp(42px,11vw,58px)}.industry-grid{grid-template-columns:1fr}.industry-card,.industry-card:last-child{grid-column:auto;min-height:280px}.production-copy h2{font-size:37px}.production-step{gap:13px;padding:17px 0}.footer-grid{grid-template-columns:1fr;gap:25px}.footer-bottom{flex-direction:column}}
