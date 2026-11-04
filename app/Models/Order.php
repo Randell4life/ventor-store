@@ -22,6 +22,13 @@ class Order extends Model
 
             $points = max(0, (int) floor((float) $order->total));
             $user->increment('loyalty_points', $points);
+            $user->loyaltyPointTransactions()->create([
+                'order_id' => $order->id,
+                'type' => 'earned',
+                'points' => $points,
+                'balance_after' => (int) $user->fresh()->loyalty_points,
+                'description' => 'ქულები შეკვეთის დასრულებისთვის '.$order->order_number,
+            ]);
             $order->forceFill([
                 'loyalty_points_earned' => $points,
                 'loyalty_points_awarded_at' => now(),
