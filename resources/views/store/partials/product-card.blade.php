@@ -13,8 +13,9 @@
             <p class="muted" style="font-size:12px">{{ $product->short_description }}</p>
         @endif
         <div class="price">
-            @if($product->compare_at_price && $product->compare_at_price > $product->price)
+            @if($product->hasActiveDiscount())
                 <span style="text-decoration:line-through;color:var(--muted);font-size:13px">{{ number_format((float) $product->compare_at_price, 2) }} ₾</span>
+                <span style="display:inline-block;margin-left:6px;padding:3px 6px;background:#5b2020;color:#ffc2c2;font-size:11px">-{{ $product->discountPercentage() }}%</span>
             @endif
             {{ number_format((float) $product->price, 2) }} ₾
         </div>
