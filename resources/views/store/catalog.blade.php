@@ -17,11 +17,15 @@
 @endpush
 @section('title','კატალოგი — VENTOR')
 @section('content')
-<section class="section">
-    <div class="wrap">
-        <div class="eyebrow">VENTOR COLLECTION</div>
-        <h1 style="font-size:clamp(32px,5vw,52px);margin:10px 0">პროდუქციის კატალოგი</h1>
-        <p class="muted" style="max-width:650px;line-height:1.8">იპოვე შენი ავტომობილისა და მოტოციკლის მოვლისთვის საჭირო პროდუქტი.</p>
+<section class="section catalog-page">
+    <div class="catalog-hero">
+        <div class="wrap catalog-hero-inner">
+            <div><div class="eyebrow">VENTOR / PRODUCT COLLECTION</div><h1>პროდუქცია, რომელიც<br><em>ზრუნვას ამარტივებს.</em></h1><p>შეარჩიე ავტომობილის მოვლისა და წმენდის საშუალებები — შენი ყოველდღიური საჭიროებების მიხედვით.</p></div>
+            <div class="catalog-hero-mark"><span>V</span><small>PROFESSIONAL<br>CARE SYSTEM</small></div>
+        </div>
+    </div>
+    <div class="wrap catalog-content">
+        <div class="catalog-intro-row"><div><div class="eyebrow">01 / EXPLORE THE RANGE</div><h2>იპოვე საჭირო პროდუქტი</h2></div><span class="catalog-count">{{ $products->total() }} <small>პროდუქტი</small></span></div>
 
         <form class="catalog-toolbar" method="GET" action="{{ route('catalog') }}">
             <div class="search-field">
