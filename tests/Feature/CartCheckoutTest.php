@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Coupon;
+use App\Models\InventoryMovement;
 use App\Models\LoyaltyPointTransaction;
 use App\Models\Order;
 use App\Models\Product;
@@ -159,7 +160,7 @@ class CartCheckoutTest extends TestCase
             'line_total' => 51,
         ]);
 
-        \\App\\Models\\InventoryMovement::create([
+        InventoryMovement::create([
             'product_id' => $product->id,
             'movement_type' => 'sale',
             'quantity_change' => -2,
