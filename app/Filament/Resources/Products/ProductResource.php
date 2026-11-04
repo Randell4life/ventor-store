@@ -56,7 +56,9 @@ class ProductResource extends Resource
             TextInput::make('cost_price')->label('თვითღირებულება (₾)')->numeric()->minValue(0)
                 ->helperText('გამოიყენება სავარაუდო მოგებისა და მარჟის გამოსათვლელად.'),
             TextInput::make('stock')->label('საწყისი მარაგი')->numeric()->integer()->minValue(0)->required()->default(0)
-                ->helperText('არსებული პროდუქტის მარაგის ცვლილება გააკეთე პროდუქტის სიიდან — „მარაგის მართვა“ მოქმედებით, რათა ისტორია სწორად აღირიცხოს.'),
+                ->disabled(fn (?Product $record): bool => $record !== null)
+                ->dehydrated(fn (?Product $record): bool => $record === null)
+                ->helperText('საწყისი ნაშთი ფიქსირდება პროდუქტის შექმნისას. შემდგომი ცვლილებები გააკეთე „მარაგის მართვა“ მოქმედებით.'),
             FileUpload::make('image_path')
                 ->label('პროდუქტის ფოტო')
                 ->image()
@@ -128,14 +130,14 @@ class ProductResource extends Resource
                         ->label('ოპერაცია')
                         ->options([
                             'restock' => 'მარაგის დამატება',
-                            'remove' => 'მარაგის ჩამოწერა',
-                            'set' => 'ნაშთის დაყენება',
+                            'writeoff' => 'ჩამოწერა / დაზიანება',
+                            'stocktake' => 'ინვენტარიზაცია — ფაქტობრივი ნაშთი',
                         ])
                         ->default('restock')
                         ->required()
                         ->native(false),
                     TextInput::make('quantity')
-                        ->label(fn (callable $get): string => $get('operation') === 'set' ? 'ახალი ნაშთი' : 'რაოდენობა')
+                        ->label(fn (callable $get): string => $get('operation') === 'stocktake' ? 'ფაქტობრივი ნაშთი' : 'რაოდენობა')
                         ->numeric()
                         ->integer()
                         ->minValue(0)
@@ -153,12 +155,24 @@ class ProductResource extends Resource
                         $product = Product::query()->lockForUpdate()->findOrFail($record->getKey());
                         $before = (int) $product->stock;
                         $quantity = (int) $data['quantity'];
+                        $operation = $data['operation'];
 
-                        $after = match ($data['operation']) {
+                        if (! in_array($operation, ['restock', 'writeoff', 'stocktake'], true)) {
+                            throw ValidationException::withMessages([
+                                'operation' => 'მარაგის ოპერაცია არასწორია.',
+                            ]);
+                        }
+
+                        if ($operation !== 'stocktake' && $quantity <= 0) {
+                            throw ValidationException::withMessages([
+                                'quantity' => 'რაოდენობა უნდა იყოს 0-ზე მეტი.',
+                            ]);
+                        }
+
+                        $after = match ($operation) {
                             'restock' => $before + $quantity,
-                            'remove' => $before - $quantity,
-                            'set' => $quantity,
-                            default => $before,
+                            'writeoff' => $before - $quantity,
+                            'stocktake' => $quantity,
                         };
 
                         if ($after < 0) {
@@ -179,7 +193,11 @@ class ProductResource extends Resource
                         InventoryMovement::create([
                             'product_id' => $product->id,
                             'user_id' => auth()->id(),
-                            'movement_type' => $data['operation'] === 'restock' ? 'restock' : 'adjustment',
+                            'movement_type' => match ($operation) {
+                                'restock' => 'restock',
+                                'writeoff' => 'writeoff',
+                                'stocktake' => 'stocktake',
+                            },
                             'quantity_change' => $delta,
                             'stock_before' => $before,
                             'stock_after' => $after,
