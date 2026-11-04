@@ -3,6 +3,10 @@
 @section('content')
 <section class="section"><div class="wrap"><div class="eyebrow">MY VENTOR</div><h1>გამარჯობა, {{ auth()->user()->name }}</h1>
 @if(session('status'))<div class="notice">{{ session('status') }}</div>@endif
+<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin:24px 0;padding:22px">
+<div><div class="eyebrow">VENTOR REWARDS</div><h2 style="margin:6px 0">შენი ბონუს ბალანსი</h2><p class="muted" style="margin:0">ყოველ დასრულებულ შეკვეთაზე მიიღებ 1 ქულას ყოველ დახარჯულ 1 ₾-ზე.</p></div>
+<div style="text-align:right"><strong style="font-size:32px">{{ number_format((int) auth()->user()->loyalty_points) }}</strong><div class="muted">ქულა</div></div>
+</div>
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:28px 0">
 <a class="card" href="{{ route('account.orders') }}"><div class="eyebrow">ORDERS</div><h2>ჩემი შეკვეთები</h2><p class="muted">შეკვეთების ისტორია და დეტალები</p></a>
 <a class="card" href="{{ route('account.profile.edit') }}"><div class="eyebrow">PROFILE</div><h2>პროფილის მართვა</h2><p class="muted">პირადი და კომპანიის ინფორმაცია</p></a>
