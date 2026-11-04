@@ -122,6 +122,14 @@ class CartCheckoutTest extends TestCase
             'loyalty_points' => 400,
         ]);
         $product = $this->product(['stock' => 3]);
+        $coupon = Coupon::create([
+            'code' => 'CANCEL100',
+            'type' => 'fixed',
+            'value' => 10,
+            'minimum_order' => 0,
+            'used_count' => 1,
+            'is_active' => true,
+        ]);
 
         $order = Order::create([
             'user_id' => $user->id,
@@ -134,6 +142,8 @@ class CartCheckoutTest extends TestCase
             'delivery_fee' => 0,
             'total' => 41,
             'loyalty_points_redeemed' => 100,
+            'coupon_id' => $coupon->id,
+            'coupon_code' => $coupon->code,
             'status' => 'processing',
             'payment_method' => 'cash_on_delivery',
         ]);
@@ -152,6 +162,7 @@ class CartCheckoutTest extends TestCase
 
         $this->assertSame(5, (int) $product->fresh()->stock);
         $this->assertSame(500, (int) $user->fresh()->loyalty_points);
+        $this->assertSame(0, (int) $coupon->fresh()->used_count);
         $this->assertDatabaseHas('inventory_movements', [
             'product_id' => $product->id,
             'movement_type' => 'sale_return',
