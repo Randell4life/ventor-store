@@ -8,6 +8,7 @@ use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -47,7 +48,11 @@ class ProductResource extends Resource
             TextInput::make('brand')->label('ბრენდი')->maxLength(120),
             TextInput::make('volume')->label('მოცულობა')->maxLength(80),
             TextInput::make('price')->label('გასაყიდი ფასი (₾)')->numeric()->minValue(0)->required(),
-            TextInput::make('compare_at_price')->label('ძველი ფასი (₾)')->numeric()->minValue(0),
+            TextInput::make('compare_at_price')->label('ძველი ფასი (₾)')->numeric()->minValue(0)
+                ->helperText('მიუთითე მიმდინარე ფასზე მაღალი ფასი, რომ ფასდაკლება გამოჩნდეს.'),
+            DateTimePicker::make('discount_starts_at')->label('აქციის დაწყება')->seconds(false)->native(false),
+            DateTimePicker::make('discount_ends_at')->label('აქციის დასრულება')->seconds(false)->native(false)
+                ->after('discount_starts_at'),
             TextInput::make('cost_price')->label('თვითღირებულება (₾)')->numeric()->minValue(0)
                 ->helperText('გამოიყენება სავარაუდო მოგებისა და მარჟის გამოსათვლელად.'),
             TextInput::make('stock')->label('საწყისი მარაგი')->numeric()->integer()->minValue(0)->required()->default(0)
@@ -75,6 +80,7 @@ class ProductResource extends Resource
             TextColumn::make('sku')->label('SKU')->searchable(),
             TextColumn::make('brand')->label('ბრენდი')->searchable(),
             TextColumn::make('price')->label('ფასი')->money('GEL')->sortable(),
+            TextColumn::make('discount_ends_at')->label('აქციის დასრულება')->dateTime('d.m.Y H:i')->placeholder('ვადა არ აქვს')->toggleable(),
             TextColumn::make('cost_price')->label('თვითღირებულება')->money('GEL')->sortable()->toggleable(),
             TextColumn::make('estimated_profit')
                 ->label('მოგება / ცალი')
