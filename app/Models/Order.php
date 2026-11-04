@@ -8,6 +8,27 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    protected static function booted(): void
+    {
+        static::updated(function (Order $order): void {
+            if (! $order->wasChanged('status') || $order->status !== 'completed' || $order->loyalty_points_awarded_at) {
+                return;
+            }
+
+            $user = $order->user;
+            if (! $user) {
+                return;
+            }
+
+            $points = max(0, (int) floor((float) $order->total));
+            $user->increment('loyalty_points', $points);
+            $order->forceFill([
+                'loyalty_points_earned' => $points,
+                'loyalty_points_awarded_at' => now(),
+            ])->saveQuietly();
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'order_number',
@@ -24,6 +45,8 @@ class Order extends Model
         'coupon_id',
         'coupon_code',
         'discount_amount',
+        'loyalty_points_earned',
+        'loyalty_points_awarded_at',
         'status',
         'payment_method',
     ];
@@ -35,6 +58,8 @@ class Order extends Model
             'delivery_fee' => 'decimal:2',
             'total' => 'decimal:2',
             'discount_amount' => 'decimal:2',
+            'loyalty_points_earned' => 'integer',
+            'loyalty_points_awarded_at' => 'datetime',
         ];
     }
 
