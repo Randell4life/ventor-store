@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\OperatingExpense;
 use App\Models\Order;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -85,6 +86,27 @@ class FinancialReport extends Page
             ->sortKeysDesc()
             ->values();
 
+        $expenses = OperatingExpense::query()
+            ->whereBetween('expense_date', [$from->toDateString(), $until->toDateString()])
+            ->get();
+
+        $operatingExpenses = (float) $expenses->sum('amount');
+        $paidExpenses = (float) $expenses->where('status', 'paid')->sum('amount');
+        $unpaidExpenses = (float) $expenses->where('status', 'unpaid')->sum('amount');
+        $operatingResult = $revenue - $cost - $operatingExpenses;
+
+        $expensesByCategory = $expenses
+            ->groupBy(fn (OperatingExpense $expense): string => OperatingExpense::categories()[$expense->category] ?? $expense->category)
+            ->map(fn ($items, string $category): array => [
+                'category' => $category,
+                'count' => $items->count(),
+                'total' => (float) $items->sum('amount'),
+                'paid' => (float) $items->where('status', 'paid')->sum('amount'),
+                'unpaid' => (float) $items->where('status', 'unpaid')->sum('amount'),
+            ])
+            ->sortByDesc('total')
+            ->values();
+
         // Inventory valuation is a current snapshot, independent of the selected sales period.
         $inventoryProducts = Product::query()
             ->with('category:id,name')
@@ -135,6 +157,12 @@ class FinancialReport extends Page
             'discounts' => $discounts,
             'incompleteCount' => $incompleteCount,
             'daily' => $daily,
+            'expenses' => $expenses->sortByDesc('expense_date')->values(),
+            'operatingExpenses' => $operatingExpenses,
+            'paidExpenses' => $paidExpenses,
+            'unpaidExpenses' => $unpaidExpenses,
+            'operatingResult' => $operatingResult,
+            'expensesByCategory' => $expensesByCategory,
             'inventoryUnits' => $inventoryUnits,
             'inventoryCostValue' => $inventoryCostValue,
             'inventoryRetailValue' => $inventoryRetailValue,
