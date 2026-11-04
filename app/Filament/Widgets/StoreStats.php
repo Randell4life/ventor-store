@@ -18,7 +18,7 @@ class StoreStats extends BaseWidget
         $activeOrderValue = Order::whereIn('status', ['confirmed', 'processing', 'shipped'])->sum('total');
         $completedRevenue = Order::where('status', 'completed')->sum('total');
         $monthCompletedRevenue = Order::where('status', 'completed')
-            ->whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->whereBetween('completed_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('total');
         $inventory = Product::query()
             ->where('stock', '>', 0)
@@ -32,7 +32,7 @@ class StoreStats extends BaseWidget
             ->where('status', 'completed')
             ->whereHas('items')
             ->whereDoesntHave('items', fn ($query) => $query->whereNull('unit_cost'))
-            ->get(['id', 'total', 'updated_at']);
+            ->get(['id', 'total', 'completed_at']);
         $costTrackedOrderIds = $costTrackedOrders->pluck('id');
         $trackedCompletedRevenue = (float) $costTrackedOrders->sum('total');
         $completedCost = \App\Models\OrderItem::query()
@@ -41,7 +41,7 @@ class StoreStats extends BaseWidget
         $completedGrossProfit = $trackedCompletedRevenue - (float) $completedCost;
 
         $monthTrackedOrders = $costTrackedOrders->filter(
-            fn (Order $order): bool => $order->updated_at?->between(now()->startOfMonth(), now()->endOfMonth()) ?? false
+            fn (Order $order): bool => $order->completed_at?->between(now()->startOfMonth(), now()->endOfMonth()) ?? false
         );
         $monthTrackedOrderIds = $monthTrackedOrders->pluck('id');
         $monthGrossProfit = (float) $monthTrackedOrders->sum('total')
