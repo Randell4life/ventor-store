@@ -60,6 +60,7 @@ class OperatingExpenseResource extends Resource
             Select::make('payment_method')
                 ->label('გადახდის მეთოდი')
                 ->options(OperatingExpense::paymentMethods())
+                ->required(fn (callable $get): bool => $get('status') === 'paid')
                 ->native(false)
                 ->visible(fn (callable $get): bool => $get('status') === 'paid'),
             DatePicker::make('paid_at')
