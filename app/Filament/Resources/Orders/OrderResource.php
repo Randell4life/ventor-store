@@ -53,6 +53,15 @@ class OrderResource extends Resource
             TextInput::make('subtotal')->label('პროდუქტების ჯამი (₾)')->disabled(),
             TextInput::make('delivery_fee')->label('მიწოდება (₾)')->disabled(),
             TextInput::make('total')->label('სულ გადასახდელი (₾)')->disabled(),
+            TextInput::make('cost_total')
+                ->label('შეკვეთის თვითღირებულება (₾)')
+                ->state(fn (?Order $record): string => number_format((float) ($record?->items()->selectRaw('SUM(COALESCE(unit_cost, 0) * quantity) as aggregate')->value('aggregate') ?? 0), 2))
+                ->disabled(),
+            TextInput::make('gross_profit')
+                ->label('მთლიანი მოგება (₾)')
+                ->state(fn (?Order $record): string => number_format((float) ($record?->total ?? 0) - (float) ($record?->items()->selectRaw('SUM(COALESCE(unit_cost, 0) * quantity) as aggregate')->value('aggregate') ?? 0), 2))
+                ->disabled()
+                ->helperText('შეკვეთის ჯამი მინუს გაყიდვისას დაფიქსირებული თვითღირებულება. საოპერაციო ხარჯები და გადასახადები არ შედის.'),
             TextInput::make('loyalty_points_earned')->label('დარიცხული ბონუს ქულები')->disabled(),
             TextInput::make('loyalty_points_redeemed')->label('გამოყენებული ბონუს ქულები')->disabled(),
             TextInput::make('loyalty_points_awarded_at')->label('ქულების დარიცხვის დრო')->disabled(),
@@ -64,9 +73,10 @@ class OrderResource extends Resource
                     TextInput::make('sku')->label('SKU')->disabled(),
                     TextInput::make('quantity')->label('რაოდენობა')->numeric()->disabled(),
                     TextInput::make('unit_price')->label('ერთეულის ფასი (₾)')->numeric()->disabled(),
+                    TextInput::make('unit_cost')->label('თვითღირებულება / ერთეული (₾)')->numeric()->disabled(),
                     TextInput::make('line_total')->label('პოზიციის ჯამი (₾)')->numeric()->disabled(),
                 ])
-                ->columns(5)
+                ->columns(6)
                 ->disabled()
                 ->columnSpanFull(),
             Select::make('status')
