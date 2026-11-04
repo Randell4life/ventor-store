@@ -34,6 +34,7 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::get('/profile', [CustomerAccountController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [CustomerAccountController::class, 'updateProfile'])->name('profile.update');
     Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders');
+    Route::get('/rewards', [CustomerAccountController::class, 'rewards'])->name('rewards');
     Route::get('/orders/{order}', [CustomerAccountController::class, 'showOrder'])->name('orders.show');
     Route::post('/logout', [CustomerAccountController::class, 'logout'])->name('logout');
 });
