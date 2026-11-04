@@ -21,6 +21,7 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'company_name',
         'tax_number',
+        'loyalty_points',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -31,6 +32,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'loyalty_points' => 'integer',
         ];
     }
 
