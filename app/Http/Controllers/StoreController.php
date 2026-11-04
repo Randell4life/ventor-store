@@ -11,7 +11,7 @@ class StoreController extends Controller
     public function home()
     {
         return view('store.home', [
-            'categories' => Category::where('is_active', true)->orderBy('sort_order')->get(),
+            'categories' => Category::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
             'products' => Product::with('category')->where('is_active', true)->latest()->take(8)->get(),
             'featured' => Product::with('category')->where('is_active', true)->where('is_featured', true)->take(4)->get(),
         ]);
