@@ -48,31 +48,49 @@ class Order extends Model
 
                     $reference = 'ORDER-CANCEL-'.$lockedOrder->id;
 
-                    if (! InventoryMovement::query()->where('reference', $reference)->exists()) {
-                        foreach ($lockedOrder->items()->whereNotNull('product_id')->get() as $item) {
-                            $product = Product::query()->whereKey($item->product_id)->lockForUpdate()->first();
+                    foreach ($lockedOrder->items()->whereNotNull('product_id')->get() as $item) {
+                        $product = Product::query()->whereKey($item->product_id)->lockForUpdate()->first();
 
-                            if (! $product) {
-                                continue;
-                            }
-
-                            $before = (int) $product->stock;
-                            $quantity = (int) $item->quantity;
-                            $after = $before + $quantity;
-
-                            $product->update(['stock' => $after]);
-
-                            InventoryMovement::create([
-                                'product_id' => $product->id,
-                                'user_id' => auth()->id(),
-                                'movement_type' => 'sale_return',
-                                'quantity_change' => $quantity,
-                                'stock_before' => $before,
-                                'stock_after' => $after,
-                                'reference' => $reference,
-                                'note' => 'შეკვეთის გაუქმება: '.$lockedOrder->order_number,
-                            ]);
+                        if (! $product) {
+                            continue;
                         }
+
+                        $soldQuantity = abs((int) InventoryMovement::query()
+                            ->where('product_id', $product->id)
+                            ->where('movement_type', 'sale')
+                            ->where('reference', $lockedOrder->order_number)
+                            ->sum('quantity_change'));
+
+                        $alreadyReturned = (int) InventoryMovement::query()
+                            ->where('product_id', $product->id)
+                            ->where('movement_type', 'sale_return')
+                            ->where('reference', $reference)
+                            ->sum('quantity_change');
+
+                        $quantity = min(
+                            max(0, $soldQuantity - $alreadyReturned),
+                            (int) $item->quantity
+                        );
+
+                        if ($quantity < 1) {
+                            continue;
+                        }
+
+                        $before = (int) $product->stock;
+                        $after = $before + $quantity;
+
+                        $product->update(['stock' => $after]);
+
+                        InventoryMovement::create([
+                            'product_id' => $product->id,
+                            'user_id' => auth()->id(),
+                            'movement_type' => 'sale_return',
+                            'quantity_change' => $quantity,
+                            'stock_before' => $before,
+                            'stock_after' => $after,
+                            'reference' => $reference,
+                            'note' => 'შეკვეთის გაუქმება: '.$lockedOrder->order_number,
+                        ]);
                     }
 
                     if ($lockedOrder->coupon_id) {
