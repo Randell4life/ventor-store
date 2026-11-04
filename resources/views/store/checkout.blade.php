@@ -28,7 +28,7 @@
         <p class="muted">შეავსე მიმღების ინფორმაცია და გადაამოწმე შეკვეთა.</p>
 
         <div class="checkout-layout" style="margin-top:25px">
-            <form class="checkout-form" method="POST" action="{{ route('checkout.store') }}">
+            <form id="checkout-main-form" class="checkout-form" method="POST" action="{{ route('checkout.store') }}">
                 @csrf
                 <div class="checkout-step"><span>01</span><div><strong>მიმღების ინფორმაცია</strong><div class="muted" style="font-size:11px">საკონტაქტო და მიწოდების დეტალები</div></div></div>
                 @if($errors->any())<div class="checkout-error">{{ $errors->first() }}</div>@endif
@@ -48,6 +48,17 @@
                         </form>
                     @endif
                 </div>
+                @if(auth()->check() && $availablePoints > 0)
+                    <div style="padding:15px 0;border-bottom:1px solid var(--line);margin-bottom:12px">
+                        <strong>VENTOR Rewards</strong>
+                        <p class="muted" style="font-size:12px;margin:5px 0">ბალანსი: {{ number_format($availablePoints) }} ქულა · 100 ქულა = 1 ₾. მაქსიმუმ შეგიძლია გამოიყენო შეკვეთის 30%-ის ფარგლებში.</p>
+                        <label for="loyalty_points_to_redeem">გამოსაყენებელი ქულები (მაქს. {{ number_format($maxRedeemablePoints) }})</label>
+                        <input id="loyalty_points_to_redeem" class="field" type="number" name="loyalty_points_to_redeem" min="0" max="{{ $maxRedeemablePoints }}" step="1" value="{{ old('loyalty_points_to_redeem', 0) }}">
+                        @error('loyalty_points_to_redeem')<p class="checkout-error">{{ $message }}</p>@enderror
+                    </div>
+                @elseif(!auth()->check())
+                    <p class="muted" style="font-size:12px;padding:12px 0">ბონუს ქულების გამოსაყენებლად <a href="{{ route('login') }}">შედი ანგარიშში</a>.</p>
+                @endif
                 <div class="checkout-fields">
                     <div class="full"><label for="customer_name">სახელი და გვარი *</label><input id="customer_name" class="field" name="customer_name" value="{{ old('customer_name',auth()->user()?->name) }}" autocomplete="name" required maxlength="120"></div>
                     <div><label for="phone">ტელეფონი *</label><input id="phone" class="field" type="tel" name="phone" value="{{ old('phone',auth()->user()?->phone) }}" autocomplete="tel" required maxlength="40"></div>
@@ -72,6 +83,7 @@
                 @endforeach
                 <div class="checkout-summary-line"><span class="muted">პროდუქტების ჯამი</span><strong>{{ number_format($subtotal,2) }} ₾</strong></div>
                 @if($couponDiscount > 0)<div class="checkout-summary-line"><span style="color:#8eddb5">პრომოკოდი ({{ $coupon->code }})</span><strong style="color:#8eddb5">−{{ number_format($couponDiscount,2) }} ₾</strong></div>@endif
+                @if(old('loyalty_points_to_redeem', 0) > 0)<div class="checkout-summary-line"><span style="color:#8eddb5">ბონუს ქულები</span><strong style="color:#8eddb5">−{{ number_format((int) old('loyalty_points_to_redeem') / 100,2) }} ₾</strong></div>@endif
                 @if($savings > 0)<div class="checkout-summary-line"><span style="color:#8eddb5">ფასდაკლებით დაზოგე</span><strong style="color:#8eddb5">−{{ number_format($savings,2) }} ₾</strong></div>@endif
                 <div class="checkout-summary-line"><span class="muted">მიწოდება</span><span class="muted">შეთანხმებით</span></div>
                 <div style="display:flex;justify-content:space-between;gap:12px;padding:20px 0;font-size:21px"><strong>სულ</strong><strong>{{ number_format($total,2) }} ₾</strong></div>
