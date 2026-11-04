@@ -1,13 +1,14 @@
 <?php
 
-namespace App\\Console\\Commands;
+namespace App\Console\Commands;
 
-use App\\Models\\Category;
-use App\\Models\\Product;
-use Illuminate\\Console\\Command;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Support\\Facades\\Storage;
-use Illuminate\\Support\\Str;
+use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 class ImportIcecoCarCareProducts extends Command
@@ -165,7 +166,7 @@ class ImportIcecoCarCareProducts extends Command
     private function plainText(mixed $value): string
     {
         $decoded = html_entity_decode((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        return trim(preg_replace('/\\s+/u', ' ', strip_tags($decoded)) ?? '');
+        return trim(preg_replace('/\s+/u', ' ', strip_tags($decoded)) ?? '');
     }
 
     private function downloadProductImage(array $product, string $slug): ?string
