@@ -46,6 +46,7 @@ class Order extends Model
         'coupon_code',
         'discount_amount',
         'loyalty_points_earned',
+        'loyalty_points_redeemed',
         'loyalty_points_awarded_at',
         'status',
         'payment_method',
@@ -59,6 +60,7 @@ class Order extends Model
             'total' => 'decimal:2',
             'discount_amount' => 'decimal:2',
             'loyalty_points_earned' => 'integer',
+            'loyalty_points_redeemed' => 'integer',
             'loyalty_points_awarded_at' => 'datetime',
         ];
     }
