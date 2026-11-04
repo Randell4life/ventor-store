@@ -33,7 +33,7 @@
         <meta property="og:image" content="{{ asset('storage/'.$product->image_path) }}">
     @endif
     <script type="application/ld+json">
-        @json([
+        {!! json_encode([
             '@context' => 'https://schema.org',
             '@type' => 'Product',
             'name' => $product->name,
@@ -48,8 +48,8 @@
                 'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
                 'url' => route('product.show', $product),
             ],
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
-    </script>
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>ipt>
 @endpush
 @section('content')
 <section class="section">
