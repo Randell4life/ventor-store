@@ -76,13 +76,14 @@ class CheckoutController extends Controller
             }
         }
 
+        $pointsDiscount = 0.0; // ქულები იჭრება მხოლოდ შეკვეთის POST დამუშავებისას.
         $availablePoints = auth()->user() ? (int) auth()->user()->loyalty_points : 0;
         $maxRedeemablePoints = min($availablePoints, (int) floor(max(0, $subtotal - $couponDiscount) * 30));
 
         return view('store.checkout', [
             'lines' => $lines,
             'subtotal' => $subtotal,
-            'total' => max(0, $subtotal - $couponDiscount),
+            'total' => max(0, $subtotal - $couponDiscount - $pointsDiscount),
             'savings' => $lines->sum('savings'),
             'coupon' => $coupon,
             'couponDiscount' => $couponDiscount,
