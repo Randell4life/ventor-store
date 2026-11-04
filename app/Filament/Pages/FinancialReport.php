@@ -3,10 +3,9 @@
 namespace App\Filament\Pages;
 
 use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\Product;
 use Carbon\Carbon;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\DB;
 
 class FinancialReport extends Page
 {
@@ -86,6 +85,45 @@ class FinancialReport extends Page
             ->sortKeysDesc()
             ->values();
 
+        // Inventory valuation is a current snapshot, independent of the selected sales period.
+        $inventoryProducts = Product::query()
+            ->with('category:id,name')
+            ->where('stock', '>', 0)
+            ->get(['id', 'category_id', 'name', 'sku', 'stock', 'price', 'cost_price']);
+
+        $inventoryUnits = (int) $inventoryProducts->sum('stock');
+        $inventoryCostValue = (float) $inventoryProducts
+            ->filter(fn (Product $product): bool => $product->cost_price !== null)
+            ->sum(fn (Product $product): float => (int) $product->stock * (float) $product->cost_price);
+        $inventoryRetailValue = (float) $inventoryProducts
+            ->sum(fn (Product $product): float => (int) $product->stock * (float) $product->price);
+        $unknownCostProducts = $inventoryProducts
+            ->filter(fn (Product $product): bool => $product->cost_price === null);
+        $unknownCostUnits = (int) $unknownCostProducts->sum('stock');
+
+        $inventoryByCategory = $inventoryProducts
+            ->groupBy(fn (Product $product): string => $product->category?->name ?? 'კატეგორიის გარეშე')
+            ->map(function ($products, string $category): array {
+                $knownCostProducts = $products->filter(fn (Product $product): bool => $product->cost_price !== null);
+
+                return [
+                    'category' => $category,
+                    'products' => $products->count(),
+                    'units' => (int) $products->sum('stock'),
+                    'cost_value' => (float) $knownCostProducts->sum(
+                        fn (Product $product): float => (int) $product->stock * (float) $product->cost_price
+                    ),
+                    'retail_value' => (float) $products->sum(
+                        fn (Product $product): float => (int) $product->stock * (float) $product->price
+                    ),
+                    'unknown_cost_units' => (int) $products
+                        ->filter(fn (Product $product): bool => $product->cost_price === null)
+                        ->sum('stock'),
+                ];
+            })
+            ->sortByDesc('cost_value')
+            ->values();
+
         return [
             'from' => $from->format('Y-m-d'),
             'until' => $until->format('Y-m-d'),
@@ -97,6 +135,12 @@ class FinancialReport extends Page
             'discounts' => $discounts,
             'incompleteCount' => $incompleteCount,
             'daily' => $daily,
+            'inventoryUnits' => $inventoryUnits,
+            'inventoryCostValue' => $inventoryCostValue,
+            'inventoryRetailValue' => $inventoryRetailValue,
+            'unknownCostProductsCount' => $unknownCostProducts->count(),
+            'unknownCostUnits' => $unknownCostUnits,
+            'inventoryByCategory' => $inventoryByCategory,
         ];
     }
 }
