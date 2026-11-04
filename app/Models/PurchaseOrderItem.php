@@ -25,9 +25,11 @@ class PurchaseOrderItem extends Model
     protected static function booted(): void
     {
         static::saving(function (PurchaseOrderItem $item): void {
-            $purchaseOrder = $item->purchaseOrder;
+            $purchaseOrderStatus = PurchaseOrder::query()
+                ->whereKey($item->purchase_order_id)
+                ->value('status');
 
-            if ($purchaseOrder && ! in_array($purchaseOrder->status, ['draft', 'ordered'], true)) {
+            if (! in_array($purchaseOrderStatus, ['draft', 'ordered'], true)) {
                 throw ValidationException::withMessages([
                     'items' => 'მიღებული ან გაუქმებული შესყიდვის პოზიციების შეცვლა შეუძლებელია.',
                 ]);
@@ -49,9 +51,11 @@ class PurchaseOrderItem extends Model
         });
 
         static::deleting(function (PurchaseOrderItem $item): void {
-            $purchaseOrder = $item->purchaseOrder;
+            $purchaseOrderStatus = PurchaseOrder::query()
+                ->whereKey($item->purchase_order_id)
+                ->value('status');
 
-            if ($purchaseOrder && ! in_array($purchaseOrder->status, ['draft', 'ordered'], true)) {
+            if (! in_array($purchaseOrderStatus, ['draft', 'ordered'], true)) {
                 throw ValidationException::withMessages([
                     'items' => 'მიღებული ან გაუქმებული შესყიდვის პოზიციების წაშლა შეუძლებელია.',
                 ]);
