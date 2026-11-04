@@ -634,3 +634,30 @@ footer{background:radial-gradient(ellipse at 15% 0%,#142c48 0%,transparent 44%),
 .product-card:hover .product-card-visual img{transform:none;}
 .product-gallery .visual img{padding:28px;}
 @media(max-width:600px){.product-gallery .visual img{padding:13px;}}
+
+
+/* FINAL OVERRIDE: product photos must never be zoom-cropped */
+.product-card .product-card-visual{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    overflow:hidden!important;
+}
+.product-card .product-card-visual img{
+    position:relative!important;
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    max-width:100%!important;
+    max-height:100%!important;
+    padding:8px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:none!important;
+    filter:drop-shadow(0 12px 14px #0007)!important;
+}
+.product-card:hover .product-card-visual img,
+.card:hover .product-card-visual img,
+.product-card .product-card-visual img:hover{
+    transform:none!important;
+}
