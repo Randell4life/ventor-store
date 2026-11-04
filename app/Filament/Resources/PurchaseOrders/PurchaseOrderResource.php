@@ -33,6 +33,11 @@ class PurchaseOrderResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'შესყიდვები';
     protected static ?int $navigationSort = 2;
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withSum('payments', 'amount');
+    }
+
     private static function statuses(): array
     {
         return [
