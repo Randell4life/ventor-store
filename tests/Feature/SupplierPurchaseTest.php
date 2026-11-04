@@ -104,6 +104,53 @@ class SupplierPurchaseTest extends TestCase
         $this->assertEquals(100.0, $supplier->fresh()->outstandingBalance());
     }
 
+    public function test_received_purchase_order_items_cannot_be_changed_or_deleted(): void
+    {
+        $supplier = Supplier::create(['name' => 'Locked Supplier']);
+        $product = Product::create([
+            'name' => 'Locked Product',
+            'slug' => 'locked-product',
+            'sku' => 'LOCK-001',
+            'price' => 20,
+            'stock' => 0,
+            'is_active' => true,
+        ]);
+
+        $order = PurchaseOrder::create([
+            'supplier_id' => $supplier->id,
+            'status' => 'ordered',
+        ]);
+
+        $item = $order->items()->create([
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'sku' => $product->sku,
+            'quantity' => 5,
+            'unit_cost' => 4,
+            'line_total' => 20,
+        ]);
+
+        $order->update(['status' => 'received']);
+
+        try {
+            $item->update(['quantity' => 10]);
+            $this->fail('Received purchase order items must not be editable.');
+        } catch (ValidationException) {
+            $this->assertSame(5, (int) $item->fresh()->quantity);
+        }
+
+        try {
+            $item->delete();
+            $this->fail('Received purchase order items must not be deletable.');
+        } catch (ValidationException) {
+            $this->assertDatabaseHas('purchase_order_items', [
+                'id' => $item->id,
+                'purchase_order_id' => $order->id,
+                'quantity' => 5,
+            ]);
+        }
+    }
+
     public function test_supplier_payment_cannot_exceed_remaining_balance_or_be_recorded_before_receipt(): void
     {
         $supplier = Supplier::create(['name' => 'Protected Supplier']);
