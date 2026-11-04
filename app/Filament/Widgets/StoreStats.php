@@ -19,6 +19,17 @@ class StoreStats extends BaseWidget
         $monthCompletedRevenue = Order::where('status', 'completed')
             ->whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('total');
+        $completedCost = \\App\\Models\\OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'completed')
+            ->sum(\\Illuminate\\Support\\Facades\\DB::raw('COALESCE(order_items.unit_cost, 0) * order_items.quantity'));
+        $completedGrossProfit = (float) $completedRevenue - (float) $completedCost;
+        $monthCompletedCost = \\App\\Models\\OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'completed')
+            ->whereBetween('orders.updated_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->sum(\\Illuminate\\Support\\Facades\\DB::raw('COALESCE(order_items.unit_cost, 0) * order_items.quantity'));
+        $monthGrossProfit = (float) $monthCompletedRevenue - (float) $monthCompletedCost;
         $completedDiscounts = Order::where('status', 'completed')->sum('discount_amount');
 
         return [
@@ -61,6 +72,16 @@ class StoreStats extends BaseWidget
                 ->description('მიმდინარე თვეში დასრულებული შეკვეთები')
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('success'),
+
+            Stat::make('დასრულებული შეკვეთების მთლიანი მოგება', number_format($completedGrossProfit, 2).' ₾')
+                ->description('გაყიდვის თანხა მინუს დაფიქსირებული თვითღირებულება')
+                ->descriptionIcon('heroicon-m-chart-bar')
+                ->color($completedGrossProfit < 0 ? 'danger' : 'success'),
+
+            Stat::make('ამ თვის მთლიანი მოგება', number_format($monthGrossProfit, 2).' ₾')
+                ->description('მიმდინარე თვეში დასრულებული შეკვეთები')
+                ->descriptionIcon('heroicon-m-calendar-days')
+                ->color($monthGrossProfit < 0 ? 'danger' : 'success'),
 
             Stat::make('დასრულებული შეკვეთების ფასდაკლება', number_format((float) $completedDiscounts, 2).' ₾')
                 ->description('კუპონები და Rewards ქულები')
