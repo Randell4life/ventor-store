@@ -175,6 +175,7 @@ class CartCheckoutTest extends TestCase
         $this->assertSame(5, (int) $product->fresh()->stock);
         $this->assertSame(500, (int) $user->fresh()->loyalty_points);
         $this->assertSame(0, (int) $coupon->fresh()->used_count);
+        $this->assertNotNull($order->fresh()->cancellation_processed_at);
         $this->assertDatabaseHas('inventory_movements', [
             'product_id' => $product->id,
             'movement_type' => 'sale_return',
