@@ -64,7 +64,7 @@
             <div class="product-gallery">
                 <div class="visual">
                     @if($product->image_path)
-                        <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" loading="eager" style="width:100%;height:100%;object-fit:contain">
+                        <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" loading="eager" style="box-sizing:border-box;display:block;width:100%;height:100%;object-fit:contain;object-position:center">
                     @else
                         <div class="bottle" style="transform:scale(1.7)" aria-hidden="true"></div>
                     @endif
