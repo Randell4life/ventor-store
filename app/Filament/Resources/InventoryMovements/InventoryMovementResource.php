@@ -38,13 +38,17 @@ class InventoryMovementResource extends Resource
                 ->formatStateUsing(fn (string $state): string => match ($state) {
                     'sale' => 'გაყიდვა',
                     'restock' => 'მარაგის შევსება',
+                    'writeoff' => 'ჩამოწერა / დაზიანება',
+                    'stocktake' => 'ინვენტარიზაცია',
+                    'opening_balance' => 'საწყისი ნაშთი',
                     'adjustment' => 'კორექტირება',
                     default => $state,
                 })
                 ->color(fn (string $state): string => match ($state) {
                     'sale' => 'warning',
-                    'restock' => 'success',
-                    'adjustment' => 'info',
+                    'restock', 'opening_balance' => 'success',
+                    'writeoff' => 'danger',
+                    'stocktake', 'adjustment' => 'info',
                     default => 'gray',
                 }),
             TextColumn::make('quantity_change')->label('ცვლილება')->numeric()->sortable()
