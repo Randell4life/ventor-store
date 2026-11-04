@@ -86,6 +86,70 @@ class CartCheckoutTest extends TestCase
         $this->assertSame([], session('cart', []));
     }
 
+    public function test_customer_can_redeem_points_and_transaction_is_linked_to_order(): void
+    {
+        $user = User::create([
+            'name' => 'Rewards Buyer',
+            'email' => 'rewards-buyer@example.com',
+            'password' => 'StrongPassword123!',
+            'is_admin' => false,
+            'loyalty_points' => 500,
+        ]);
+        $product = $this->product(['price' => 25.50, 'stock' => 5]);
+
+        $this->actingAs($user)->withSession([
+            'cart' => [(string) $product->id => 2],
+        ])->post('/checkout', [
+            'customer_name' => 'Rewards Buyer',
+            'phone' => '555123456',
+            'email' => 'rewards-buyer@example.com',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'payment_method' => 'cash_on_delivery',
+            'loyalty_points_to_redeem' => 100,
+        ])->assertRedirect();
+
+        $order = \\App\\Models\\Order::firstOrFail();
+
+        $this->assertSame('50.00', $order->total);
+        $this->assertSame(100, $order->loyalty_points_redeemed);
+        $this->assertSame(400, (int) $user->fresh()->loyalty_points);
+        $this->assertDatabaseHas('loyalty_point_transactions', [
+            'user_id' => $user->id,
+            'order_id' => $order->id,
+            'type' => 'redeemed',
+            'points' => 100,
+            'balance_after' => 400,
+        ]);
+    }
+
+    public function test_customer_cannot_redeem_more_points_than_their_balance(): void
+    {
+        $user = User::create([
+            'name' => 'Limited Buyer',
+            'email' => 'limited-buyer@example.com',
+            'password' => 'StrongPassword123!',
+            'is_admin' => false,
+            'loyalty_points' => 50,
+        ]);
+        $product = $this->product(['price' => 25.50, 'stock' => 5]);
+
+        $this->actingAs($user)->withSession([
+            'cart' => [(string) $product->id => 1],
+        ])->post('/checkout', [
+            'customer_name' => 'Limited Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'payment_method' => 'cash_on_delivery',
+            'loyalty_points_to_redeem' => 51,
+        ])->assertSessionHasErrors('loyalty_points_to_redeem');
+
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertSame(50, (int) $user->fresh()->loyalty_points);
+        $this->assertDatabaseCount('loyalty_point_transactions', 0);
+    }
+
     public function test_checkout_does_not_create_order_when_stock_is_insufficient(): void
     {
         $product = $this->product(['stock' => 1]);
