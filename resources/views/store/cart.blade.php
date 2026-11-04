@@ -63,6 +63,7 @@
                                         @if($line['product']->brand)<p class="muted" style="margin:5px 0">{{ $line['product']->brand }}</p>@endif
                                         <div class="cart-stock">მარაგშია: {{ $line['stock'] }} ცალი</div>
                                         <div class="cart-stock">{{ number_format((float)$line['product']->price,2) }} ₾ / ცალი</div>
+                                        @if($line['savings'] > 0)<div class="cart-stock" style="color:#8eddb5">ფასდაკლება: −{{ number_format($line['savings'],2) }} ₾</div>@endif
                                     </div>
                                     <div class="cart-quantity">
                                         <label class="cart-stock" for="quantity-{{ $line['product']->id }}">რაოდენობა</label>
@@ -90,6 +91,7 @@
                     <h2 style="margin:8px 0 15px">შეკვეთის შეჯამება</h2>
                     <div class="cart-summary-row"><span class="muted">პროდუქტები</span><strong>{{ $itemCount }} ცალი</strong></div>
                     <div class="cart-summary-row"><span class="muted">ქვეჯამი</span><strong>{{ number_format($total,2) }} ₾</strong></div>
+                    @if($savings > 0)<div class="cart-summary-row"><span style="color:#8eddb5">შენი დანაზოგი</span><strong style="color:#8eddb5">−{{ number_format($savings,2) }} ₾</strong></div>@endif
                     <div class="cart-summary-row"><span class="muted">მიწოდება</span><span class="muted">დადასტურდება შეკვეთისას</span></div>
                     <div style="display:flex;justify-content:space-between;gap:12px;padding:20px 0;font-size:20px"><strong>ჯამი</strong><strong>{{ number_format($total,2) }} ₾</strong></div>
                     <a class="btn" style="display:block;text-align:center;width:100%" href="{{ route('checkout') }}">შეკვეთის გაფორმება →</a>
