@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -33,6 +34,26 @@ class CheckoutController extends Controller
         })->filter()->values();
     }
 
+    public function applyCoupon(Request $request)
+    {
+        $data = $request->validate(['coupon_code' => ['required', 'string', 'max:50']]);
+        $subtotal = (float) $this->cartLines($request)->sum('line_total');
+        $coupon = Coupon::whereRaw('UPPER(code) = ?', [strtoupper(trim($data['coupon_code']))])->first();
+
+        if (! $coupon || ! $coupon->isUsableFor($subtotal)) {
+            return back()->withErrors(['coupon_code' => 'კუპონი არასწორია ან მისი პირობები არ სრულდება.']);
+        }
+
+        $request->session()->put('coupon_code', strtoupper($coupon->code));
+        return back()->with('coupon_success', 'პრომოკოდი გააქტიურდა.');
+    }
+
+    public function removeCoupon(Request $request)
+    {
+        $request->session()->forget('coupon_code');
+        return back()->with('coupon_success', 'პრომოკოდი მოხსნილია.');
+    }
+
     public function create(Request $request)
     {
         $lines = $this->cartLines($request);
@@ -42,10 +63,26 @@ class CheckoutController extends Controller
                 ->withErrors(['cart' => 'შეკვეთის გასაფორმებლად კალათაში პროდუქტი დაამატე.']);
         }
 
+        $subtotal = (float) $lines->sum('line_total');
+        $coupon = null;
+        $couponDiscount = 0.0;
+        if ($code = $request->session()->get('coupon_code')) {
+            $coupon = Coupon::whereRaw('UPPER(code) = ?', [strtoupper($code)])->first();
+            if ($coupon && $coupon->isUsableFor($subtotal)) {
+                $couponDiscount = $coupon->calculateDiscount($subtotal);
+            } else {
+                $request->session()->forget('coupon_code');
+                $coupon = null;
+            }
+        }
+
         return view('store.checkout', [
             'lines' => $lines,
-            'total' => $lines->sum('line_total'),
+            'subtotal' => $subtotal,
+            'total' => max(0, $subtotal - $couponDiscount),
             'savings' => $lines->sum('savings'),
+            'coupon' => $coupon,
+            'couponDiscount' => $couponDiscount,
         ]);
     }
 
@@ -69,7 +106,7 @@ class CheckoutController extends Controller
             ]);
         }
 
-        $order = DB::transaction(function () use ($data, $cart) {
+        $order = DB::transaction(function () use ($data, $cart, $request) {
             $subtotal = 0;
             $lines = [];
 
@@ -91,14 +128,28 @@ class CheckoutController extends Controller
                 $lines[] = [$product, $quantity, $lineTotal];
             }
 
+            $coupon = null;
+            $couponDiscount = 0.0;
+            if ($code = $request->session()->get('coupon_code')) {
+                $coupon = Coupon::whereRaw('UPPER(code) = ?', [strtoupper($code)])->lockForUpdate()->first();
+                if (! $coupon || ! $coupon->isUsableFor($subtotal)) {
+                    throw ValidationException::withMessages(['coupon_code' => 'პრომოკოდის პირობები აღარ სრულდება.']);
+                }
+                $couponDiscount = $coupon->calculateDiscount($subtotal);
+                $coupon->increment('used_count');
+            }
+
             $order = Order::create([
                 ...$data,
                 'user_id' => auth()->id(),
+                'coupon_id' => $coupon?->id,
+                'coupon_code' => $coupon?->code,
+                'discount_amount' => $couponDiscount,
                 'order_number' => 'VNT-'.now()->format('ymd').'-'.Str::upper(Str::random(5)),
                 'public_token' => Str::random(64),
                 'subtotal' => $subtotal,
                 'delivery_fee' => 0,
-                'total' => $subtotal,
+                'total' => max(0, $subtotal - $couponDiscount),
                 'status' => 'new',
             ]);
 
@@ -129,7 +180,7 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        $request->session()->forget('cart');
+        $request->session()->forget(['cart', 'coupon_code']);
 
         return redirect()->route('checkout.success', [
             'token' => $order->public_token,
