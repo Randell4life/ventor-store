@@ -80,6 +80,20 @@ class PurchaseOrderResource extends Resource
             TextColumn::make('supplier.name')->label('მომწოდებელი')->searchable()->sortable(),
             TextColumn::make('items_count')->counts('items')->label('პოზიციები')->sortable(),
             TextColumn::make('subtotal')->label('ჯამი')->money('GEL')->sortable(),
+            TextColumn::make('paid_amount')->label('გადახდილია')->state(fn (PurchaseOrder $record): float => $record->paidAmount())->money('GEL'),
+            TextColumn::make('balance_due')->label('დავალიანება')->state(fn (PurchaseOrder $record): float => $record->balanceDue())->money('GEL')
+                ->color(fn (PurchaseOrder $record): string => $record->balanceDue() > 0 ? 'danger' : 'success'),
+            TextColumn::make('payment_status')->label('გადახდის სტატუსი')->badge()
+                ->state(fn (PurchaseOrder $record): string => match ($record->paymentStatus()) {
+                    'paid' => 'სრულად გადახდილი',
+                    'partial' => 'ნაწილობრივ გადახდილი',
+                    default => 'გადაუხდელი',
+                })
+                ->color(fn (PurchaseOrder $record): string => match ($record->paymentStatus()) {
+                    'paid' => 'success',
+                    'partial' => 'warning',
+                    default => 'danger',
+                }),
             TextColumn::make('status')->label('სტატუსი')->badge()
                 ->formatStateUsing(fn (string $state): string => self::statuses()[$state] ?? $state)
                 ->color(fn (string $state): string => match ($state) {
@@ -160,6 +174,42 @@ class PurchaseOrderResource extends Resource
 
                     Notification::make()->title('საქონელი მიღებულია')->body('მარაგი, თვითღირებულება და მოძრაობების ისტორია განახლდა.')->success()->send();
                 }),
+            Action::make('recordPayment')
+                ->label('გადახდის დაფიქსირება')
+                ->icon('heroicon-o-banknotes')
+                ->color('warning')
+                ->visible(fn (PurchaseOrder $record): bool => $record->status === 'received' && $record->balanceDue() > 0)
+                ->form([
+                    TextInput::make('amount')->label('გადახდის თანხა (₾)')->numeric()->minValue(0.01)->required(),
+                    Select::make('payment_method')->label('გადახდის მეთოდი')->options([
+                        'bank_transfer' => 'საბანკო გადარიცხვა',
+                        'cash' => 'ნაღდი ფული',
+                        'card' => 'ბარათი',
+                        'other' => 'სხვა',
+                    ])->default('bank_transfer')->required()->native(false),
+                    TextInput::make('reference')->label('ტრანზაქციის / ქვითრის ნომერი')->maxLength(120),
+                    Textarea::make('note')->label('შენიშვნა')->rows(2),
+                ])
+                ->action(function (PurchaseOrder $record, array $data): void {
+                    $record->recordPayment(
+                        (float) $data['amount'],
+                        $data['payment_method'],
+                        $data['reference'] ?? null,
+                        $data['note'] ?? null,
+                    );
+
+                    Notification::make()->title('გადახდა დაფიქსირდა')->success()->send();
+                }),
+            Action::make('paymentHistory')
+                ->label('გადახდების ისტორია')
+                ->icon('heroicon-o-clock')
+                ->modalHeading('მომწოდებლის გადახდები')
+                ->modalContent(fn (PurchaseOrder $record) => view('filament.purchase-orders.payment-history', [
+                    'payments' => $record->payments()->with('user')->latest('paid_at')->get(),
+                ]))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('დახურვა')
+                ->visible(fn (PurchaseOrder $record): bool => $record->payments()->exists()),
             \Filament\Actions\EditAction::make()->label('დეტალები / რედაქტირება'),
         ])->defaultSort('created_at', 'desc')->emptyStateHeading('შესყიდვის დოკუმენტები ჯერ არ არის');
     }
