@@ -143,7 +143,7 @@ body{letter-spacing:.005em}
 .store-promo-bar span:first-child{color:#8fc7ff;font-weight:800;letter-spacing:.16em}
 .store-promo-bar a{color:#eaf4ff;font-weight:800}.store-promo-bar a b{color:#8fc7ff;margin-left:7px}
 .store-hero{position:relative;isolation:isolate;overflow:hidden;min-height:660px;display:flex;align-items:center;background:#060b12}
-.store-hero-photo{position:absolute;inset:0;z-index:-3;background-image:url('https://images.unsplash.com/photo-1607860308413-6c7c2e3c9a6c?auto=format&fit=crop&w=2200&q=90');background-position:center 52%;background-size:cover;opacity:.56;filter:saturate(.65) contrast(1.12)}
+.store-hero-photo{position:absolute;inset:0;z-index:-3;background-image:url('https://ngdetailing.org/assets/hero-bg-DtGsFtBI.jpg');background-position:center 52%;background-size:cover;opacity:.56;filter:saturate(.65) contrast(1.12)}
 .store-hero-overlay{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,#060b12 0%,#060b12f2 32%,#060b12a8 65%,#060b1240 100%),linear-gradient(0deg,#060b12 0%,transparent 42%,#060b1266 100%)}
 .store-hero-content{position:relative;min-height:660px;display:flex;align-items:center;padding:80px 0 95px}
 .store-hero-copy{max-width:760px}
