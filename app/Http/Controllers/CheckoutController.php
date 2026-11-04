@@ -82,7 +82,7 @@ class CheckoutController extends Controller
         return view('store.checkout', [
             'lines' => $lines,
             'subtotal' => $subtotal,
-            'total' => max(0, $subtotal - $couponDiscount - $pointsDiscount),
+            'total' => max(0, $subtotal - $couponDiscount),
             'savings' => $lines->sum('savings'),
             'coupon' => $coupon,
             'couponDiscount' => $couponDiscount,
@@ -162,6 +162,12 @@ class CheckoutController extends Controller
 
                 $pointsDiscount = $pointsToRedeem / 100;
                 $user->decrement('loyalty_points', $pointsToRedeem);
+                $user->loyaltyPointTransactions()->create([
+                    'type' => 'redeemed',
+                    'points' => $pointsToRedeem,
+                    'balance_after' => (int) $user->fresh()->loyalty_points,
+                    'description' => 'ქულების გამოყენება შეკვეთაზე',
+                ]);
             }
 
             $order = Order::create([
@@ -175,7 +181,7 @@ class CheckoutController extends Controller
                 'public_token' => Str::random(64),
                 'subtotal' => $subtotal,
                 'delivery_fee' => 0,
-                'total' => max(0, $subtotal - $couponDiscount),
+                'total' => max(0, $subtotal - $couponDiscount - $pointsDiscount),
                 'status' => 'new',
             ]);
 
