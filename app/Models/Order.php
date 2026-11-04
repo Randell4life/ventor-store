@@ -11,28 +11,50 @@ class Order extends Model
     protected static function booted(): void
     {
         static::updated(function (Order $order): void {
-            if (! $order->wasChanged('status') || $order->status !== 'completed' || $order->loyalty_points_awarded_at) {
+            if (! $order->wasChanged('status') || $order->status !== 'completed') {
                 return;
             }
 
-            $user = $order->user;
-            if (! $user) {
-                return;
-            }
+            DB::transaction(function () use ($order): void {
+                $lockedOrder = static::query()->whereKey($order->getKey())->lockForUpdate()->first();
 
-            $points = max(0, (int) floor((float) $order->total));
-            $user->increment('loyalty_points', $points);
-            $user->loyaltyPointTransactions()->create([
-                'order_id' => $order->id,
-                'type' => 'earned',
-                'points' => $points,
-                'balance_after' => (int) $user->fresh()->loyalty_points,
-                'description' => 'ქულები შეკვეთის დასრულებისთვის '.$order->order_number,
-            ]);
-            $order->forceFill([
-                'loyalty_points_earned' => $points,
-                'loyalty_points_awarded_at' => now(),
-            ])->saveQuietly();
+                if (! $lockedOrder || $lockedOrder->status !== 'completed' || $lockedOrder->loyalty_points_awarded_at) {
+                    return;
+                }
+
+                if (! $lockedOrder->user_id) {
+                    $lockedOrder->forceFill([
+                        'loyalty_points_earned' => 0,
+                        'loyalty_points_awarded_at' => now(),
+                    ])->saveQuietly();
+
+                    return;
+                }
+
+                $user = User::query()->whereKey($lockedOrder->user_id)->lockForUpdate()->first();
+
+                if (! $user) {
+                    return;
+                }
+
+                $points = max(0, (int) floor((float) $lockedOrder->total));
+
+                if ($points > 0) {
+                    $user->increment('loyalty_points', $points);
+                    $user->loyaltyPointTransactions()->create([
+                        'order_id' => $lockedOrder->id,
+                        'type' => 'earned',
+                        'points' => $points,
+                        'balance_after' => (int) $user->fresh()->loyalty_points,
+                        'description' => 'ქულები შეკვეთის დასრულებისთვის '.$lockedOrder->order_number,
+                    ]);
+                }
+
+                $lockedOrder->forceFill([
+                    'loyalty_points_earned' => $points,
+                    'loyalty_points_awarded_at' => now(),
+                ])->saveQuietly();
+            });
         });
     }
 
