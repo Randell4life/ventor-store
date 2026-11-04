@@ -8,6 +8,7 @@ use App\Filament\Resources\PurchaseOrders\Pages\ListPurchaseOrders;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderItem;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -75,11 +76,11 @@ class PurchaseOrderResource extends Resource
                     Select::make('product_id')->label('პროდუქტი')
                         ->relationship('product', 'name')
                         ->searchable()->preload()->required()
-                        ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
+                        ->disabled(fn ($record): bool => $record instanceof PurchaseOrderItem && ! in_array($record->purchaseOrder?->status, ['draft', 'ordered'], true)),
                     TextInput::make('quantity')->label('რაოდენობა')->numeric()->integer()->minValue(1)->required()
-                        ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
+                        ->disabled(fn ($record): bool => $record instanceof PurchaseOrderItem && ! in_array($record->purchaseOrder?->status, ['draft', 'ordered'], true)),
                     TextInput::make('unit_cost')->label('შესყიდვის ფასი / ერთეული (₾)')->numeric()->minValue(0)->required()
-                        ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
+                        ->disabled(fn ($record): bool => $record instanceof PurchaseOrderItem && ! in_array($record->purchaseOrder?->status, ['draft', 'ordered'], true)),
                 ])->columns(3)->minItems(1)->required()->columnSpanFull(),
             Textarea::make('notes')->label('შენიშვნა')->rows(3)->columnSpanFull()
                 ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
