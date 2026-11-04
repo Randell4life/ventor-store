@@ -3,7 +3,7 @@
         <div class="visual product-card-visual">
             @if($product->hasActiveDiscount())<span class="product-card-sale">-{{ $product->discountPercentage() }}%</span>@endif
             @if($product->image_path)
-                <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" loading="lazy" style="width:100%;height:100%;object-fit:contain">
+                <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" loading="lazy" style="box-sizing:border-box;display:block;width:100%;height:100%;object-fit:contain;object-position:center">
             @else
                 <div class="bottle" aria-hidden="true"></div>
             @endif
