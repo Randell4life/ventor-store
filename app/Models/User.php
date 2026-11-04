@@ -41,6 +41,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Order::class);
     }
 
+    public function loyaltyPointTransactions(): HasMany
+    {
+        return $this->hasMany(LoyaltyPointTransaction::class)->latest();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return (bool) $this->is_admin;
