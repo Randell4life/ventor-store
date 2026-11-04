@@ -8,12 +8,22 @@ use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'slug', 'description', 'is_active', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'description', 'image_path', 'is_active', 'sort_order'];
 
     protected static function booted(): void
     {
-        static::creating(function (Category $category) {
-            $category->slug = $category->slug ?: Str::slug($category->name);
+        static::saving(function (Category $category): void {
+            if (blank($category->slug) && filled($category->name)) {
+                $base = Str::slug($category->name) ?: 'category';
+                $slug = $base;
+                $suffix = 2;
+
+                while (static::query()->where('slug', $slug)->whereKeyNot($category->getKey())->exists()) {
+                    $slug = $base.'-'.$suffix++;
+                }
+
+                $category->slug = $slug;
+            }
         });
     }
 
