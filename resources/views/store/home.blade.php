@@ -1,5 +1,6 @@
 @extends('layouts.store')
 
+@push('head')<link rel="stylesheet" href="{{ asset('css/storefront-premium.css') }}">@endpush
 @section('title', 'VENTOR — პრემიუმ მოვლა ავტომობილისა და მოტოციკლისთვის')
 @section('meta_description', 'პრემიუმ საავტომობილო და მოტო მოვლის საშუალებები ერთ სივრცეში. აღმოაჩინე VENTOR-ის შერჩეული პროდუქცია.')
 @section('canonical_url', route('home'))
