@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\InventoryMovement;
 use App\Models\LoyaltyPointTransaction;
 use App\Models\Order;
 use App\Models\Product;
@@ -169,7 +168,7 @@ class CartCheckoutTest extends TestCase
             'balance_after' => 500,
         ]);
 
-        $this->expectException(\\Illuminate\\Validation\\ValidationException::class);
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
         $order->update(['status' => 'processing']);
     }
 
@@ -188,7 +187,7 @@ class CartCheckoutTest extends TestCase
             'payment_method' => 'cash_on_delivery',
         ]);
 
-        $this->expectException(\\Illuminate\\Validation\\ValidationException::class);
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
         $order->update(['status' => 'cancelled']);
     }
 
