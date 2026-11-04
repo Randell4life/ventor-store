@@ -27,8 +27,23 @@ class Product extends Model
 
     protected static function booted(): void
     {
-        static::creating(function (Product $product) {
+        static::creating(function (Product $product): void {
             $product->slug = $product->slug ?: Str::slug($product->name).'-'.Str::lower(Str::random(5));
+        });
+
+        static::created(function (Product $product): void {
+            if ((int) $product->stock <= 0) {
+                return;
+            }
+
+            $product->inventoryMovements()->create([
+                'user_id' => auth()->id(),
+                'movement_type' => 'opening_balance',
+                'quantity_change' => (int) $product->stock,
+                'stock_before' => 0,
+                'stock_after' => (int) $product->stock,
+                'note' => 'პროდუქტის შექმნისას დაფიქსირებული საწყისი ნაშთი',
+            ]);
         });
     }
 
