@@ -45,14 +45,14 @@ class FinancialReport extends Page
 
         $completedOrders = Order::query()
             ->where('status', 'completed')
-            ->whereBetween('updated_at', [$from, $until])
+            ->whereBetween('completed_at', [$from, $until])
             ->whereHas('items')
             ->whereDoesntHave('items', fn ($query) => $query->whereNull('unit_cost'));
 
         $orders = (clone $completedOrders)
             ->with('items:id,order_id,product_name,quantity,unit_cost,line_total')
-            ->latest('updated_at')
-            ->get(['id', 'order_number', 'customer_name', 'total', 'discount_amount', 'updated_at']);
+            ->latest('completed_at')
+            ->get(['id', 'order_number', 'customer_name', 'total', 'discount_amount', 'completed_at']);
 
         $revenue = (float) $orders->sum(fn (Order $order): float => (float) $order->total);
         $discounts = (float) $orders->sum(fn (Order $order): float => (float) $order->discount_amount);
@@ -64,15 +64,21 @@ class FinancialReport extends Page
 
         $incompleteCount = Order::query()
             ->where('status', 'completed')
-            ->whereBetween('updated_at', [$from, $until])
+            ->whereBetween('completed_at', [$from, $until])
             ->where(function ($query): void {
                 $query->whereDoesntHave('items')
                     ->orWhereHas('items', fn ($items) => $items->whereNull('unit_cost'));
             })
             ->count();
 
+        // Older completed orders have no trustworthy completion timestamp.
+        $undatedCompletedCount = Order::query()
+            ->where('status', 'completed')
+            ->whereNull('completed_at')
+            ->count();
+
         $daily = $orders
-            ->groupBy(fn (Order $order): string => $order->updated_at->format('Y-m-d'))
+            ->groupBy(fn (Order $order): string => $order->completed_at->format('Y-m-d'))
             ->map(fn ($dayOrders, string $date): array => [
                 'date' => $date,
                 'orders' => $dayOrders->count(),
@@ -156,6 +162,7 @@ class FinancialReport extends Page
             'grossProfit' => $revenue - $cost,
             'discounts' => $discounts,
             'incompleteCount' => $incompleteCount,
+            'undatedCompletedCount' => $undatedCompletedCount,
             'daily' => $daily,
             'expenses' => $expenses->sortByDesc('expense_date')->values(),
             'operatingExpenses' => $operatingExpenses,
