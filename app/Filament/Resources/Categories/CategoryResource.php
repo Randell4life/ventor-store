@@ -60,8 +60,8 @@ class CategoryResource extends Resource
             TextColumn::make('sort_order')->label('რიგი')->sortable(),
             IconColumn::make('is_active')->label('საიტზე ჩანს')->boolean(),
         ])->recordActions([
-            \\Filament\Actions\EditAction::make()->label('რედაქტირება'),
-            \\Filament\Actions\DeleteAction::make()->label('წაშლა'),
+            EditAction::make()->label('რედაქტირება'),
+            DeleteAction::make()->label('წაშლა'),
         ])->defaultSort('sort_order');
     }
 
