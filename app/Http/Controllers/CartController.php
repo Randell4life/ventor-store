@@ -25,6 +25,7 @@ class CartController extends Controller
                 'product' => $product,
                 'quantity' => $quantity,
                 'line_total' => (float) $product->price * $quantity,
+                'savings' => $product->hasActiveDiscount() ? ((float) $product->compare_at_price - (float) $product->price) * $quantity : 0,
                 'stock' => (int) $product->stock,
             ];
         })->filter()->values();
@@ -41,6 +42,7 @@ class CartController extends Controller
         return view('store.cart', [
             'lines' => $lines,
             'total' => $lines->sum('line_total'),
+            'savings' => $lines->sum('savings'),
             'itemCount' => $lines->sum('quantity'),
         ]);
     }
