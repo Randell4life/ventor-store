@@ -1,22 +1,22 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
-use App\\Models\\Order;
-use App\\Models\\OrderItem;
-use Carbon\\Carbon;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
+use App\Models\Order;
+use App\Models\OrderItem;
+use Carbon\Carbon;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 
 class FinancialReport extends Page
 {
-    protected static string|\\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar-square';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar-square';
 
     protected static ?string $navigationLabel = 'ფინანსური ანგარიში';
 
     protected static ?string $title = 'ფინანსური ანგარიში';
 
-    protected static string|\\UnitEnum|null $navigationGroup = 'გაყიდვები';
+    protected static string|\UnitEnum|null $navigationGroup = 'გაყიდვები';
 
     protected static ?int $navigationSort = 20;
 
@@ -29,13 +29,13 @@ class FinancialReport extends Page
 
         try {
             $from = $fromInput ? Carbon::createFromFormat('Y-m-d', $fromInput)->startOfDay() : now()->startOfMonth();
-        } catch (\\Throwable) {
+        } catch (\Throwable) {
             $from = now()->startOfMonth();
         }
 
         try {
             $until = $untilInput ? Carbon::createFromFormat('Y-m-d', $untilInput)->endOfDay() : now()->endOfMonth();
-        } catch (\\Throwable) {
+        } catch (\Throwable) {
             $until = now()->endOfMonth();
         }
 
