@@ -97,9 +97,9 @@
     </div>
 </section>
 
-<section class="store-production">
+<section class="store-production" id="production">
     <div class="wrap store-production-layout">
-        <div><div class="eyebrow">03 / MADE BY VENTOR</div><h2>შედეგი იწყება<br><em>წარმოების კონტროლით.</em></h2><p>VENTOR აერთიანებს ნედლეულის შერჩევას, ფორმულირებას, ტარის წარმოებასა და შეფუთვას. სრული ციკლის კონტროლი გვაძლევს საშუალებას, შევქმნათ საიმედო პროდუქტი კონკურენტული ფასით.</p><a class="store-quiet-link" href="{{ route('catalog') }}">აღმოაჩინე VENTOR <span>↗</span></a></div>
+        <div id="about"><div class="eyebrow">03 / MADE BY VENTOR</div><h2>შედეგი იწყება<br><em>წარმოების კონტროლით.</em></h2><p>VENTOR აერთიანებს ნედლეულის შერჩევას, ფორმულირებას, ტარის წარმოებასა და შეფუთვას. სრული ციკლის კონტროლი გვაძლევს საშუალებას, შევქმნათ საიმედო პროდუქტი კონკურენტული ფასით.</p><a class="store-quiet-link" href="{{ route('catalog') }}">აღმოაჩინე VENTOR <span>↗</span></a></div>
         <div class="store-production-list">
             <div><b>01</b><span><strong>ნედლეულის შერჩევა</strong><small>ხარისხიანი კომპონენტების მომარაგება</small></span></div>
             <div><b>02</b><span><strong>ფორმულირება და სინთეზი</strong><small>პროდუქტის ეფექტურობის შექმნა</small></span></div>
