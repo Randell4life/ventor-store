@@ -31,6 +31,10 @@ class Order extends Model
                     'status' => 'შეკვეთის გაუქმება შესაძლებელია მხოლოდ გაგზავნამდე.',
                 ]);
             }
+
+            if ($order->status === 'completed' && $order->completed_at === null) {
+                $order->completed_at = now();
+            }
         });
 
         static::updated(function (Order $order): void {
@@ -219,6 +223,7 @@ class Order extends Model
             'loyalty_points_redeemed' => 'integer',
             'loyalty_points_awarded_at' => 'datetime',
             'cancellation_processed_at' => 'datetime',
+            'completed_at' => 'datetime',
         ];
     }
 
