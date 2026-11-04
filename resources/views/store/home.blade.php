@@ -46,41 +46,29 @@
             <p>სამი მიმართულება. ერთი სტანდარტი — ეფექტური ფორმულები, ხარისხი და ზრუნვა თითოეულ დეტალზე.</p>
         </div>
 
-        <div class="ventor-directions-grid">
-            <a class="ventor-direction ventor-direction-main" href="{{ route('catalog') }}">
-                <span class="ventor-direction-photo ventor-direction-photo-auto" aria-hidden="true"></span>
-                <span class="ventor-direction-shade" aria-hidden="true"></span>
-                <span class="ventor-direction-top"><b>01</b><span>VENTOR AUTO CARE</span></span>
-                <span class="ventor-direction-content">
-                    <small>DRIVE WITH CONFIDENCE</small>
-                    <strong>ავტომობილის<br>მოვლა</strong>
-                    <span>ძარა, სალონი, მინა და დისკები — სისუფთავე ყველა დეტალში.</span>
-                    <i>საავტომობილო პროდუქტები <b>↗</b></i>
-                </span>
-            </a>
-            <div class="ventor-directions-side">
-                <a class="ventor-direction ventor-direction-home" href="{{ route('catalog') }}">
-                    <span class="ventor-direction-photo ventor-direction-photo-home" aria-hidden="true"></span>
-                    <span class="ventor-direction-shade" aria-hidden="true"></span>
-                    <span class="ventor-direction-top"><b>02</b><span>VENTOR HOME</span></span>
-                    <span class="ventor-direction-content">
-                        <small>EVERYDAY CLEAN</small>
-                        <strong>სისუფთავე<br>ყოველი დღისთვის</strong>
-                        <i>საყოფაცხოვრებო ხაზი <b>↗</b></i>
-                    </span>
-                </a>
-                <a class="ventor-direction ventor-direction-pro" href="{{ route('catalog') }}">
-                    <span class="ventor-direction-photo ventor-direction-photo-pro" aria-hidden="true"></span>
-                    <span class="ventor-direction-shade" aria-hidden="true"></span>
-                    <span class="ventor-direction-top"><b>03</b><span>VENTOR PROFESSIONAL</span></span>
-                    <span class="ventor-direction-content">
-                        <small>BUILT FOR PERFORMANCE</small>
-                        <strong>პროფესიონალური<br>გადაწყვეტილებები</strong>
-                        <i>ინდუსტრიული ხაზი <b>↗</b></i>
-                    </span>
-                </a>
+        @if($categories->isNotEmpty())
+            <div class="ventor-categories-grid">
+                @foreach($categories as $category)
+                    <a class="ventor-category-card" href="{{ route('catalog', ['category' => $category->slug]) }}">
+                        <span class="ventor-category-image" @if($category->image_path) style="background-image: url('{{ asset('storage/' . $category->image_path) }}')" @endif aria-hidden="true"></span>
+                        <span class="ventor-category-shade" aria-hidden="true"></span>
+                        <span class="ventor-category-top"><b>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</b><span>VENTOR COLLECTION</span></span>
+                        <span class="ventor-category-content">
+                            <strong>{{ $category->name }}</strong>
+                            @if($category->description)
+                                <span>{{ $category->description }}</span>
+                            @endif
+                            <i>კატეგორიის ნახვა <b>↗</b></i>
+                        </span>
+                    </a>
+                @endforeach
             </div>
-        </div>
+        @else
+            <div class="ventor-categories-empty">
+                <strong>კატეგორიები ჯერ არ დამატებულა</strong>
+                <span>დაამატე კატეგორიები ადმინისტრირების პანელიდან და ისინი აქ ავტომატურად გამოჩნდება.</span>
+            </div>
+        @endif
         @if($categories->isNotEmpty())
             <div class="store-category-chips">
                 <span>კატეგორიები:</span>
@@ -127,7 +115,7 @@
 
 <section class="store-production" id="production">
     <div class="wrap store-production-layout">
-        <div id="about"><div class="eyebrow">03 / MADE BY VENTOR</div><h2>შედეგი იწყება<br><em>წარმოების კონტროლით.</em></h2><p>VENTOR აერთიანებს ნედლეულის შერჩევას, ფორმულირებას, ტარის წარმოებასა და შეფუთვას. სრული ციკლის კონტროლი გვაძლევს საშუალებას, შევქმნათ საიმედო პროდუქტი კონკურენტული ფასით.</p><a class="store-quiet-link" href="{{ route('catalog') }}">აღმოაჩინე VENTOR <span>↗</span></a></div>
+        <div id="about"><h2>შედეგი იწყება<br><em>წარმოების კონტროლით.</em></h2><p>VENTOR აერთიანებს ნედლეულის შერჩევას, ფორმულირებას, ტარის წარმოებასა და შეფუთვას. სრული ციკლის კონტროლი გვაძლევს საშუალებას, შევქმნათ საიმედო პროდუქტი კონკურენტული ფასით.</p><a class="store-quiet-link" href="{{ route('catalog') }}">აღმოაჩინე VENTOR <span>↗</span></a></div>
         <div class="store-production-list">
             <div><b>01</b><span><strong>ნედლეულის შერჩევა</strong><small>ხარისხიანი კომპონენტების მომარაგება</small></span></div>
             <div><b>02</b><span><strong>ფორმულირება და სინთეზი</strong><small>პროდუქტის ეფექტურობის შექმნა</small></span></div>
