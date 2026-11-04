@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Coupon;
 use App\Models\LoyaltyPointTransaction;
 use App\Models\Order;
 use App\Models\Product;
