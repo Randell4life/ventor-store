@@ -28,8 +28,7 @@
         <p class="muted">შეავსე მიმღების ინფორმაცია და გადაამოწმე შეკვეთა.</p>
 
         <div class="checkout-layout" style="margin-top:25px">
-            <form id="checkout-main-form" class="checkout-form" method="POST" action="{{ route('checkout.store') }}">
-                @csrf
+            <div class="checkout-form">
                 <div class="checkout-step"><span>01</span><div><strong>მიმღების ინფორმაცია</strong><div class="muted" style="font-size:11px">საკონტაქტო და მიწოდების დეტალები</div></div></div>
                 @if($errors->any())<div class="checkout-error">{{ $errors->first() }}</div>@endif
                 <div style="padding:15px 0;border-bottom:1px solid var(--line);margin-bottom:12px">
@@ -48,6 +47,8 @@
                         </form>
                     @endif
                 </div>
+                <form id="checkout-main-form" method="POST" action="{{ route('checkout.store') }}">
+                    @csrf
                 @if(auth()->check() && $availablePoints > 0)
                     <div style="padding:15px 0;border-bottom:1px solid var(--line);margin-bottom:12px">
                         <strong>VENTOR Rewards</strong>
@@ -70,7 +71,8 @@
                 </div>
                 <button class="btn" style="width:100%;margin-top:22px" type="submit">შეკვეთის დადასტურება →</button>
                 <p class="checkout-security">შეკვეთის დადასტურებისას სისტემა ხელახლა ამოწმებს ფასებსა და მარაგს. შეკვეთის გაფორმება არ ნიშნავს ბარათით გადახდას — ამ ეტაპზე ხელმისაწვდომია ადგილზე გადახდა ან საბანკო გადარიცხვა.</p>
-            </form>
+                </form>
+            </div>
 
             <aside class="checkout-summary">
                 <div class="eyebrow">ORDER SUMMARY</div>
