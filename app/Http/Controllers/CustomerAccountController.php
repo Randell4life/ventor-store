@@ -106,6 +106,16 @@ class CustomerAccountController extends Controller
         return view('account.order', compact('order'));
     }
 
+    public function rewards(Request $request): View
+    {
+        $transactions = $request->user()
+            ->loyaltyPointTransactions()
+            ->with('order:id,order_number')
+            ->paginate(15);
+
+        return view('account.rewards', compact('transactions'));
+    }
+
     public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
