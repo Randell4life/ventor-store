@@ -49,16 +49,25 @@ class PurchaseOrderResource extends Resource
         ];
     }
 
+    private static function editableStatuses(): array
+    {
+        return [
+            'draft' => 'მონახაზი',
+            'ordered' => 'შეკვეთილია',
+            'cancelled' => 'გაუქმებულია',
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Select::make('supplier_id')
                 ->label('მომწოდებელი')
                 ->relationship('supplier', 'name', modifyQueryUsing: fn ($query) => $query->where('is_active', true))
-                ->searchable()->preload()->required()->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
+                ->searchable()->preload()->required()->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
             TextInput::make('order_number')->label('შესყიდვის ნომერი')->disabled()->dehydrated(false),
-            Select::make('status')->label('სტატუსი')->options(self::statuses())->default('draft')->required()->native(false)
-                ->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
+            Select::make('status')->label('სტატუსი')->options(self::editableStatuses())->default('draft')->required()->native(false)
+                ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
             Repeater::make('items')
                 ->label('პროდუქტები')
                 ->relationship()
@@ -66,14 +75,14 @@ class PurchaseOrderResource extends Resource
                     Select::make('product_id')->label('პროდუქტი')
                         ->relationship('product', 'name')
                         ->searchable()->preload()->required()
-                        ->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
+                        ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
                     TextInput::make('quantity')->label('რაოდენობა')->numeric()->integer()->minValue(1)->required()
-                        ->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
+                        ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
                     TextInput::make('unit_cost')->label('შესყიდვის ფასი / ერთეული (₾)')->numeric()->minValue(0)->required()
-                        ->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
+                        ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
                 ])->columns(3)->minItems(1)->required()->columnSpanFull(),
             Textarea::make('notes')->label('შენიშვნა')->rows(3)->columnSpanFull()
-                ->disabled(fn (?PurchaseOrder $record): bool => $record?->status === 'received'),
+                ->disabled(fn (?PurchaseOrder $record): bool => $record !== null && ! in_array($record->status, ['draft', 'ordered'], true)),
             TextInput::make('subtotal')->label('ჯამი (₾)')->disabled()->dehydrated(false),
             TextInput::make('received_at')->label('მიღების თარიღი')->disabled()->dehydrated(false),
         ])->columns(2);
