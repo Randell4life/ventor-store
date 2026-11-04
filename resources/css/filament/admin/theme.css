@@ -2,6 +2,10 @@
 
 @source '../../../../app/Filament/**/*.php';
 @source '../../../../resources/views/filament/**/*.blade.php';
+@source '../../../../vendor/filament/**/*.php';
+@source '../../../../vendor/filament/**/*.blade.php';
+@source '../../../../vendor/livewire/**/*.php';
+@source '../../../../vendor/livewire/**/*.blade.php';
 
 /*
 |--------------------------------------------------------------------------
