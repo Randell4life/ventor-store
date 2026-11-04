@@ -139,7 +139,7 @@
         </section>
 
         <section class="fr-section">
-            <div class="fr-section-head"><div><h3>გაყიდვების ფინანსური ანგარიში</h3><p>{{ $from }} — {{ $until }} · მხოლოდ დასრულებული და თვითღირებულებით სრულად აღრიცხული შეკვეთები</p></div></div>
+            <div class="fr-section-head"><div><h3>გაყიდვების ფინანსური ანგარიში</h3><p>{{ $from }} — {{ $until }} · შეკვეთის დასრულების თარიღით აღრიცხული შეკვეთები</p></div></div>
             <div class="fr-grid">
                 <article class="fr-card"><div class="fr-card-top"><span class="fr-card-label">დასრულებული შეკვეთები</span><span class="fr-icon">▤</span></div><div class="fr-value">{{ number_format($orderCount) }}</div><div class="fr-foot">სრულად აღრიცხული</div></article>
                 <article class="fr-card"><div class="fr-card-top"><span class="fr-card-label">გაყიდვები</span><span class="fr-icon">₾</span></div><div class="fr-value">{{ number_format($revenue, 2) }} ₾</div><div class="fr-foot">საბოლოო შეკვეთის თანხა</div></article>
@@ -160,7 +160,7 @@
                     <div class="fr-panel-head"><strong>დამატებითი მაჩვენებლები</strong><span>პერიოდის ჯამი</span></div>
                     <div class="fr-bars">
                         <div class="fr-bar-row"><div class="fr-bar-name">ფასდაკლებები</div><div class="fr-track"><div class="fr-fill" style="width:{{ $revenue > 0 ? min(100, ($discounts / $revenue) * 100) : 0 }}%"></div></div><div class="fr-bar-amount">{{ number_format($discounts, 2) }} ₾</div></div>
-                        <div class="fr-warning">თვითღირებულება არასრულია {{ number_format($incompleteCount) }} შეკვეთაზე. ეს შეკვეთები მოგების გამოთვლაში არ შედის.</div>
+                        <div class="fr-warning">არჩეულ პერიოდში თვითღირებულება არასრულია {{ number_format($incompleteCount) }} შეკვეთაზე. ეს შეკვეთები მოგების გამოთვლაში არ შედის. დამატებით, {{ number_format($undatedCompletedCount) }} ძველ დასრულებულ შეკვეთას სანდო დასრულების თარიღი არ აქვს და პერიოდულ ანგარიშში არ არის შეტანილი.</div>
                     </div>
                 </div>
             </div>
@@ -176,7 +176,7 @@
                     </tbody>
                 </table></div>
             </div>
-            <p class="fr-note">* საოპერაციო შედეგი = სრულად აღრიცხული შეკვეთების მთლიანი მოგება − საოპერაციო ხარჯები. ეს არ არის წმინდა მოგება: გადასახადები, გადახდის საკომისიოები და სხვა ცალკე აღურიცხავი ხარჯები არ არის გამოკლებული. პერიოდი შეკვეთის ბოლო განახლების თარიღით განისაზღვრება.</p>
+            <p class="fr-note">* საოპერაციო შედეგი = სრულად აღრიცხული შეკვეთების მთლიანი მოგება − საოპერაციო ხარჯები. ეს არ არის წმინდა მოგება: გადასახადები, გადახდის საკომისიოები და სხვა ცალკე აღურიცხავი ხარჯები არ არის გამოკლებული. პერიოდი შეკვეთის დასრულების თარიღით განისაზღვრება. ძველი შეკვეთები, რომლებსაც დასრულების თარიღი არ აქვთ, პერიოდულ ჯამებში არ შედის.</p>
         </section>
     </div>
 </x-filament-panels::page>
