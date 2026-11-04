@@ -36,22 +36,50 @@
     </div>
 </section>
 
-<section class="section store-categories" id="ventor-categories">
+<section class="section ventor-directions" id="ventor-categories">
     <div class="wrap">
-        <div class="store-section-heading">
-            <div><div class="eyebrow">01 / SHOP BY CATEGORY</div><h2>აირჩიე შენი მიმართულება</h2></div>
-            <p>ყველაფერი სისუფთავისა და მოვლისთვის — ავტომობილიდან პროფესიონალურ სამუშაო გარემომდე.</p>
+        <div class="ventor-directions-heading">
+            <div>
+                <div class="eyebrow">01 / THE VENTOR WORLD</div>
+                <h2>სისუფთავის <em>ახალი სტანდარტი.</em></h2>
+            </div>
+            <p>სამი მიმართულება. ერთი სტანდარტი — ეფექტური ფორმულები, ხარისხი და ზრუნვა თითოეულ დეტალზე.</p>
         </div>
-        <div class="store-category-grid">
-            <a class="store-category-card store-category-auto" href="{{ route('catalog') }}">
-                <span class="store-category-index">01 / AUTOMOTIVE</span><div><small>VENTOR AUTO CARE</small><h3>ავტომობილის მოვლა</h3><p>ძარის, სალონის, მინისა და დისკების წმენდა.</p><span class="store-category-link">პროდუქციის ნახვა <b>↗</b></span></div>
+
+        <div class="ventor-directions-grid">
+            <a class="ventor-direction ventor-direction-main" href="{{ route('catalog') }}">
+                <span class="ventor-direction-photo ventor-direction-photo-auto" aria-hidden="true"></span>
+                <span class="ventor-direction-shade" aria-hidden="true"></span>
+                <span class="ventor-direction-top"><b>01</b><span>VENTOR AUTO CARE</span></span>
+                <span class="ventor-direction-content">
+                    <small>DRIVE WITH CONFIDENCE</small>
+                    <strong>ავტომობილის<br>მოვლა</strong>
+                    <span>ძარა, სალონი, მინა და დისკები — სისუფთავე ყველა დეტალში.</span>
+                    <i>საავტომობილო პროდუქტები <b>↗</b></i>
+                </span>
             </a>
-            <a class="store-category-card store-category-home" href="{{ route('catalog') }}">
-                <span class="store-category-index">02 / HOME CARE</span><div><small>EVERYDAY CLEAN</small><h3>საყოფაცხოვრებო</h3><p>სისუფთავე სახლისა და ყოველდღიური სივრცეებისთვის.</p><span class="store-category-link">პროდუქციის ნახვა <b>↗</b></span></div>
-            </a>
-            <a class="store-category-card store-category-pro" href="{{ route('catalog') }}">
-                <span class="store-category-index">03 / PROFESSIONAL</span><div><small>INDUSTRIAL SOLUTIONS</small><h3>ინდუსტრიული წმენდა</h3><p>პროფესიონალური გადაწყვეტილებები ბიზნესისთვის.</p><span class="store-category-link">პროდუქციის ნახვა <b>↗</b></span></div>
-            </a>
+            <div class="ventor-directions-side">
+                <a class="ventor-direction ventor-direction-home" href="{{ route('catalog') }}">
+                    <span class="ventor-direction-photo ventor-direction-photo-home" aria-hidden="true"></span>
+                    <span class="ventor-direction-shade" aria-hidden="true"></span>
+                    <span class="ventor-direction-top"><b>02</b><span>VENTOR HOME</span></span>
+                    <span class="ventor-direction-content">
+                        <small>EVERYDAY CLEAN</small>
+                        <strong>სისუფთავე<br>ყოველი დღისთვის</strong>
+                        <i>საყოფაცხოვრებო ხაზი <b>↗</b></i>
+                    </span>
+                </a>
+                <a class="ventor-direction ventor-direction-pro" href="{{ route('catalog') }}">
+                    <span class="ventor-direction-photo ventor-direction-photo-pro" aria-hidden="true"></span>
+                    <span class="ventor-direction-shade" aria-hidden="true"></span>
+                    <span class="ventor-direction-top"><b>03</b><span>VENTOR PROFESSIONAL</span></span>
+                    <span class="ventor-direction-content">
+                        <small>BUILT FOR PERFORMANCE</small>
+                        <strong>პროფესიონალური<br>გადაწყვეტილებები</strong>
+                        <i>ინდუსტრიული ხაზი <b>↗</b></i>
+                    </span>
+                </a>
+            </div>
         </div>
         @if($categories->isNotEmpty())
             <div class="store-category-chips">
