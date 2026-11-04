@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
+use App\Models\OperatingExpense;
 use App\Models\Product;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -47,6 +48,14 @@ class StoreStats extends BaseWidget
             - (float) \App\Models\OrderItem::query()
                 ->whereIn('order_id', $monthTrackedOrderIds)
                 ->sum(\Illuminate\Support\Facades\DB::raw('unit_cost * quantity'));
+        $monthPaidOperatingExpenses = OperatingExpense::query()
+            ->where('status', 'paid')
+            ->whereBetween('paid_at', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])
+            ->sum('amount');
+        $unpaidOperatingExpenses = OperatingExpense::query()
+            ->where('status', 'unpaid')
+            ->sum('amount');
+
         $completedDiscounts = Order::where('status', 'completed')->sum('discount_amount');
 
         return [
@@ -94,6 +103,14 @@ class StoreStats extends BaseWidget
                 ->description('მიმდინარე თვეში დასრულებული შეკვეთები')
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color($monthGrossProfit < 0 ? 'danger' : 'success'),
+            Stat::make('ამ თვეში გადახდილი საოპერაციო ხარჯები', number_format((float) $monthPaidOperatingExpenses, 2).' ₾')
+                ->description('მხოლოდ მიმდინარე თვეში დაფიქსირებული გადახდები')
+                ->descriptionIcon('heroicon-m-banknotes')
+                ->color('warning'),
+            Stat::make('გადასახდელი საოპერაციო ხარჯები', number_format((float) $unpaidOperatingExpenses, 2).' ₾')
+                ->description('დაუფარავი ხარჯების ჯამი')
+                ->descriptionIcon('heroicon-m-clock')
+                ->color($unpaidOperatingExpenses > 0 ? 'warning' : 'success'),
             Stat::make('დასრულებული შეკვეთების ფასდაკლება', number_format((float) $completedDiscounts, 2).' ₾')
                 ->description('კუპონები და Rewards ქულები')
                 ->descriptionIcon('heroicon-m-ticket')
