@@ -24,7 +24,7 @@ class StoreStats extends BaseWidget
             ->where('status', 'completed')
             ->whereHas('items')
             ->whereDoesntHave('items', fn ($query) => $query->whereNull('unit_cost'))
-            ->get(['id', 'total']);
+            ->get(['id', 'total', 'updated_at']);
         $costTrackedOrderIds = $costTrackedOrders->pluck('id');
         $trackedCompletedRevenue = (float) $costTrackedOrders->sum('total');
         $completedCost = \App\Models\OrderItem::query()
