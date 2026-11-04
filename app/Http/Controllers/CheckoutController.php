@@ -148,27 +148,22 @@ class CheckoutController extends Controller
 
             $pointsToRedeem = (int) ($data['loyalty_points_to_redeem'] ?? 0);
             $pointsDiscount = 0.0;
+            $redeemingUser = null;
 
             if ($pointsToRedeem > 0) {
                 if (! auth()->check()) {
                     throw ValidationException::withMessages(['loyalty_points_to_redeem' => 'ქულების გამოსაყენებლად შედი შენს ანგარიშში.']);
                 }
 
-                $user = auth()->user()->newQuery()->whereKey(auth()->id())->lockForUpdate()->firstOrFail();
-                $maxPoints = min((int) $user->loyalty_points, (int) floor(max(0, $subtotal - $couponDiscount) * 30));
+                $redeemingUser = auth()->user()->newQuery()->whereKey(auth()->id())->lockForUpdate()->firstOrFail();
+                $maxPoints = min((int) $redeemingUser->loyalty_points, (int) floor(max(0, $subtotal - $couponDiscount) * 30));
 
                 if ($pointsToRedeem > $maxPoints) {
                     throw ValidationException::withMessages(['loyalty_points_to_redeem' => 'ქულების რაოდენობა შეიცვალა ან აჭარბებს დასაშვებ ლიმიტს.']);
                 }
 
                 $pointsDiscount = $pointsToRedeem / 100;
-                $user->decrement('loyalty_points', $pointsToRedeem);
-                $user->loyaltyPointTransactions()->create([
-                    'type' => 'redeemed',
-                    'points' => $pointsToRedeem,
-                    'balance_after' => (int) $user->fresh()->loyalty_points,
-                    'description' => 'ქულების გამოყენება შეკვეთაზე',
-                ]);
+                $redeemingUser->decrement('loyalty_points', $pointsToRedeem);
             }
 
             $order = Order::create([
@@ -185,6 +180,16 @@ class CheckoutController extends Controller
                 'total' => max(0, $subtotal - $couponDiscount - $pointsDiscount),
                 'status' => 'new',
             ]);
+
+            if ($redeemingUser && $pointsToRedeem > 0) {
+                $redeemingUser->loyaltyPointTransactions()->create([
+                    'order_id' => $order->id,
+                    'type' => 'redeemed',
+                    'points' => $pointsToRedeem,
+                    'balance_after' => (int) $redeemingUser->fresh()->loyalty_points,
+                    'description' => 'ქულების გამოყენება შეკვეთაზე '.$order->order_number,
+                ]);
+            }
 
             foreach ($lines as [$product, $quantity, $lineTotal]) {
                 $order->items()->create([
