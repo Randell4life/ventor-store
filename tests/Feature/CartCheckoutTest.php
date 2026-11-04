@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\InventoryMovement;
 use App\Models\LoyaltyPointTransaction;
 use App\Models\Order;
 use App\Models\Product;
@@ -109,6 +110,86 @@ class CartCheckoutTest extends TestCase
 
         $this->assertSame('8.25', $order->items->first()->fresh()->unit_cost);
         $this->assertSame(16.50, (float) $order->items->sum(fn ($item) => (float) $item->unit_cost * $item->quantity));
+    }
+
+
+    public function test_cancelling_eligible_order_restores_stock_and_redeemed_points(): void
+    {
+        $user = User::create([
+            'name' => 'Cancel Buyer',
+            'email' => 'cancel-buyer@example.com',
+            'password' => 'StrongPassword123!',
+            'is_admin' => false,
+            'loyalty_points' => 400,
+        ]);
+        $product = $this->product(['stock' => 3]);
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'order_number' => 'VNT-TEST-CANCEL-01',
+            'customer_name' => 'Cancel Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'subtotal' => 51,
+            'delivery_fee' => 0,
+            'total' => 41,
+            'loyalty_points_redeemed' => 100,
+            'status' => 'processing',
+            'payment_method' => 'cash_on_delivery',
+        ]);
+
+        $order->items()->create([
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'sku' => $product->sku,
+            'quantity' => 2,
+            'unit_price' => 25.50,
+            'unit_cost' => 8.25,
+            'line_total' => 51,
+        ]);
+
+        $order->update(['status' => 'cancelled']);
+
+        $this->assertSame(5, (int) $product->fresh()->stock);
+        $this->assertSame(500, (int) $user->fresh()->loyalty_points);
+        $this->assertDatabaseHas('inventory_movements', [
+            'product_id' => $product->id,
+            'movement_type' => 'sale_return',
+            'quantity_change' => 2,
+            'stock_before' => 3,
+            'stock_after' => 5,
+            'reference' => 'ORDER-CANCEL-'.$order->id,
+        ]);
+        $this->assertDatabaseHas('loyalty_point_transactions', [
+            'user_id' => $user->id,
+            'order_id' => $order->id,
+            'type' => 'refunded',
+            'points' => 100,
+            'balance_after' => 500,
+        ]);
+
+        $this->expectException(\\Illuminate\\Validation\\ValidationException::class);
+        $order->update(['status' => 'processing']);
+    }
+
+    public function test_shipped_order_cannot_be_cancelled(): void
+    {
+        $order = Order::create([
+            'order_number' => 'VNT-TEST-SHIPPED-01',
+            'customer_name' => 'Shipped Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'subtotal' => 10,
+            'delivery_fee' => 0,
+            'total' => 10,
+            'status' => 'shipped',
+            'payment_method' => 'cash_on_delivery',
+        ]);
+
+        $this->expectException(\\Illuminate\\Validation\\ValidationException::class);
+        $order->update(['status' => 'cancelled']);
     }
 
     public function test_completed_order_awards_points_only_once(): void
