@@ -49,7 +49,7 @@
                 'url' => route('product.show', $product),
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
-    </script>ipt>
+    </script>
 @endpush
 @section('content')
 <section class="section">
@@ -85,8 +85,8 @@
                 @endif
 
                 <div style="margin:22px 0 16px">
-                    @if($product->compare_at_price && $product->compare_at_price > $product->price)
-                        <div class="muted" style="font-size:14px;text-decoration:line-through">{{ number_format((float)$product->compare_at_price,2) }} ₾</div>
+                    @if($product->hasActiveDiscount())
+                        <div class="muted" style="font-size:14px;text-decoration:line-through">{{ number_format((float)$product->compare_at_price,2) }} ₾ <span style="color:#ffaaaa;font-size:13px">-{{ $product->discountPercentage() }}%</span></div>
                     @endif
                     <div class="product-price">{{ number_format((float)$product->price,2) }} ₾</div>
                 </div>
