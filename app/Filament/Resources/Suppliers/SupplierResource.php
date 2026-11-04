@@ -48,6 +48,8 @@ class SupplierResource extends Resource
             TextColumn::make('phone')->label('ტელეფონი')->searchable()->copyable(),
             TextColumn::make('email')->label('ელფოსტა')->searchable()->toggleable(),
             TextColumn::make('purchase_orders_count')->counts('purchaseOrders')->label('შესყიდვები')->sortable(),
+            TextColumn::make('outstanding_balance')->label('დავალიანება')->state(fn (Supplier $record): float => $record->outstandingBalance())->money('GEL')
+                ->color(fn (Supplier $record): string => $record->outstandingBalance() > 0 ? 'danger' : 'success'),
             IconColumn::make('is_active')->label('აქტიური')->boolean(),
         ])->filters([
             TernaryFilter::make('is_active')->label('აქტიურობა'),
