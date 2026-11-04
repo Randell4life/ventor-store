@@ -27,9 +27,9 @@ class StoreStats extends BaseWidget
             ->get(['id', 'total']);
         $costTrackedOrderIds = $costTrackedOrders->pluck('id');
         $trackedCompletedRevenue = (float) $costTrackedOrders->sum('total');
-        $completedCost = \\App\\Models\\OrderItem::query()
+        $completedCost = \App\Models\OrderItem::query()
             ->whereIn('order_id', $costTrackedOrderIds)
-            ->sum(\\Illuminate\\Support\\Facades\\DB::raw('unit_cost * quantity'));
+            ->sum(\Illuminate\Support\Facades\DB::raw('unit_cost * quantity'));
         $completedGrossProfit = $trackedCompletedRevenue - (float) $completedCost;
 
         $monthTrackedOrders = $costTrackedOrders->filter(
@@ -37,9 +37,9 @@ class StoreStats extends BaseWidget
         );
         $monthTrackedOrderIds = $monthTrackedOrders->pluck('id');
         $monthGrossProfit = (float) $monthTrackedOrders->sum('total')
-            - (float) \\App\\Models\\OrderItem::query()
+            - (float) \App\Models\OrderItem::query()
                 ->whereIn('order_id', $monthTrackedOrderIds)
-                ->sum(\\Illuminate\\Support\\Facades\\DB::raw('unit_cost * quantity'));
+                ->sum(\Illuminate\Support\Facades\DB::raw('unit_cost * quantity'));
         $completedDiscounts = Order::where('status', 'completed')->sum('discount_amount');
 
         return [
