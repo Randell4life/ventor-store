@@ -12,7 +12,7 @@ class Product extends Model
     protected $fillable = [
         'category_id', 'name', 'slug', 'sku', 'short_description', 'description',
         'brand', 'volume', 'price', 'compare_at_price', 'cost_price', 'stock',
-        'image_path', 'is_active', 'is_featured'
+        'image_path', 'is_active', 'is_featured', 'discount_starts_at', 'discount_ends_at'
     ];
 
     protected function casts(): array
@@ -20,7 +20,8 @@ class Product extends Model
         return [
             'price' => 'decimal:2', 'compare_at_price' => 'decimal:2',
             'cost_price' => 'decimal:2', 'is_active' => 'boolean',
-            'is_featured' => 'boolean', 'stock' => 'integer'
+            'is_featured' => 'boolean', 'stock' => 'integer',
+            'discount_starts_at' => 'datetime', 'discount_ends_at' => 'datetime'
         ];
     }
 
@@ -29,6 +30,25 @@ class Product extends Model
         static::creating(function (Product $product) {
             $product->slug = $product->slug ?: Str::slug($product->name).'-'.Str::lower(Str::random(5));
         });
+    }
+
+    public function hasActiveDiscount(): bool
+    {
+        if ($this->compare_at_price === null || (float) $this->compare_at_price <= (float) $this->price) {
+            return false;
+        }
+
+        $now = now();
+
+        return ($this->discount_starts_at === null || $this->discount_starts_at->lte($now))
+            && ($this->discount_ends_at === null || $this->discount_ends_at->gte($now));
+    }
+
+    public function discountPercentage(): int
+    {
+        return $this->hasActiveDiscount()
+            ? (int) round((1 - ((float) $this->price / (float) $this->compare_at_price)) * 100)
+            : 0;
     }
 
     public function inventoryMovements(): HasMany
