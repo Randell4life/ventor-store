@@ -159,6 +159,16 @@ class CartCheckoutTest extends TestCase
             'line_total' => 51,
         ]);
 
+        \\App\\Models\\InventoryMovement::create([
+            'product_id' => $product->id,
+            'movement_type' => 'sale',
+            'quantity_change' => -2,
+            'stock_before' => 5,
+            'stock_after' => 3,
+            'reference' => $order->order_number,
+            'note' => 'ტესტის საწყობის ჩამოწერა',
+        ]);
+
         $order->update(['status' => 'cancelled']);
 
         $this->assertSame(5, (int) $product->fresh()->stock);
@@ -182,6 +192,44 @@ class CartCheckoutTest extends TestCase
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $order->update(['status' => 'processing']);
+    }
+
+
+    public function test_cancelling_legacy_order_without_sale_movement_does_not_increase_stock(): void
+    {
+        $product = $this->product(['stock' => 3]);
+
+        $order = Order::create([
+            'order_number' => 'VNT-LEGACY-CANCEL-01',
+            'customer_name' => 'Legacy Buyer',
+            'phone' => '555123456',
+            'city' => 'Tbilisi',
+            'address' => 'Test Street 1',
+            'subtotal' => 51,
+            'delivery_fee' => 0,
+            'total' => 51,
+            'status' => 'processing',
+            'payment_method' => 'cash_on_delivery',
+        ]);
+
+        $order->items()->create([
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'sku' => $product->sku,
+            'quantity' => 2,
+            'unit_price' => 25.50,
+            'unit_cost' => 8.25,
+            'line_total' => 51,
+        ]);
+
+        $order->update(['status' => 'cancelled']);
+
+        $this->assertSame(3, (int) $product->fresh()->stock);
+        $this->assertDatabaseMissing('inventory_movements', [
+            'product_id' => $product->id,
+            'movement_type' => 'sale_return',
+            'reference' => 'ORDER-CANCEL-'.$order->id,
+        ]);
     }
 
     public function test_shipped_order_cannot_be_cancelled(): void
