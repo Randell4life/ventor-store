@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseOrderItem extends Model
 {
@@ -24,6 +25,14 @@ class PurchaseOrderItem extends Model
     protected static function booted(): void
     {
         static::saving(function (PurchaseOrderItem $item): void {
+            $purchaseOrder = $item->purchaseOrder;
+
+            if ($purchaseOrder && ! in_array($purchaseOrder->status, ['draft', 'ordered'], true)) {
+                throw ValidationException::withMessages([
+                    'items' => 'მიღებული ან გაუქმებული შესყიდვის პოზიციების შეცვლა შეუძლებელია.',
+                ]);
+            }
+
             if ($item->product_id) {
                 $product = Product::find($item->product_id);
                 if ($product) {
@@ -37,6 +46,16 @@ class PurchaseOrderItem extends Model
 
         static::saved(function (PurchaseOrderItem $item): void {
             $item->purchaseOrder?->recalculateSubtotal();
+        });
+
+        static::deleting(function (PurchaseOrderItem $item): void {
+            $purchaseOrder = $item->purchaseOrder;
+
+            if ($purchaseOrder && ! in_array($purchaseOrder->status, ['draft', 'ordered'], true)) {
+                throw ValidationException::withMessages([
+                    'items' => 'მიღებული ან გაუქმებული შესყიდვის პოზიციების წაშლა შეუძლებელია.',
+                ]);
+            }
         });
 
         static::deleted(function (PurchaseOrderItem $item): void {
