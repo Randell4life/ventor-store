@@ -32,6 +32,22 @@
                 @csrf
                 <div class="checkout-step"><span>01</span><div><strong>მიმღების ინფორმაცია</strong><div class="muted" style="font-size:11px">საკონტაქტო და მიწოდების დეტალები</div></div></div>
                 @if($errors->any())<div class="checkout-error">{{ $errors->first() }}</div>@endif
+                <div style="padding:15px 0;border-bottom:1px solid var(--line);margin-bottom:12px">
+                    <strong>პრომოკოდი</strong>
+                    @if(session('coupon_success'))<p style="color:#8eddb5;font-size:12px">{{ session('coupon_success') }}</p>@endif
+                    @error('coupon_code')<p class="checkout-error">{{ $message }}</p>@enderror
+                    @if($coupon)
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px">
+                            <span>{{ $coupon->code }} — გააქტიურებულია</span>
+                            <form method="POST" action="{{ route('checkout.coupon.remove') }}">@csrf<button class="btn btn-outline" type="submit">მოხსნა</button></form>
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('checkout.coupon.apply') }}" style="display:flex;gap:8px;margin-top:10px">
+                            @csrf<input class="field" name="coupon_code" placeholder="შეიყვანე კოდი" maxlength="50" required>
+                            <button class="btn" type="submit">გამოყენება</button>
+                        </form>
+                    @endif
+                </div>
                 <div class="checkout-fields">
                     <div class="full"><label for="customer_name">სახელი და გვარი *</label><input id="customer_name" class="field" name="customer_name" value="{{ old('customer_name',auth()->user()?->name) }}" autocomplete="name" required maxlength="120"></div>
                     <div><label for="phone">ტელეფონი *</label><input id="phone" class="field" type="tel" name="phone" value="{{ old('phone',auth()->user()?->phone) }}" autocomplete="tel" required maxlength="40"></div>
@@ -54,7 +70,8 @@
                         <strong>{{ number_format($line['line_total'],2) }} ₾</strong>
                     </div>
                 @endforeach
-                <div class="checkout-summary-line"><span class="muted">პროდუქტების ჯამი</span><strong>{{ number_format($total,2) }} ₾</strong></div>
+                <div class="checkout-summary-line"><span class="muted">პროდუქტების ჯამი</span><strong>{{ number_format($subtotal,2) }} ₾</strong></div>
+                @if($couponDiscount > 0)<div class="checkout-summary-line"><span style="color:#8eddb5">პრომოკოდი ({{ $coupon->code }})</span><strong style="color:#8eddb5">−{{ number_format($couponDiscount,2) }} ₾</strong></div>@endif
                 @if($savings > 0)<div class="checkout-summary-line"><span style="color:#8eddb5">ფასდაკლებით დაზოგე</span><strong style="color:#8eddb5">−{{ number_format($savings,2) }} ₾</strong></div>@endif
                 <div class="checkout-summary-line"><span class="muted">მიწოდება</span><span class="muted">შეთანხმებით</span></div>
                 <div style="display:flex;justify-content:space-between;gap:12px;padding:20px 0;font-size:21px"><strong>სულ</strong><strong>{{ number_format($total,2) }} ₾</strong></div>
